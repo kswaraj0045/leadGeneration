@@ -4,6 +4,7 @@
   "private": true,
   "description": "Semiconductor & Electronics Supply-Chain Intelligence Platform",
   "scripts": {
+    "start": "npm run dev",
     "install:all": "pnpm install && pnpm --dir server install && pnpm --dir client install",
     "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
     "dev:server": "npm --prefix server run dev",

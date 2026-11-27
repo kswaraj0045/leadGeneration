@@ -71,7 +71,16 @@ export const DiscoveryPage: React.FC = () => {
     try {
       const params: Record<string, any> = { page, limit: 12 };
       if (q.trim()) params.q = q.trim();
-      if (category !== 'all') params.category = category;
+      
+      let effectiveCategory = category;
+      if (category !== 'all' && categories.length > 0) {
+        const found = categories.find(
+          (c) => c.slug.toLowerCase() === category.toLowerCase() || c.name.toLowerCase() === category.toLowerCase()
+        );
+        if (found) effectiveCategory = found.slug;
+      }
+      if (effectiveCategory !== 'all') params.category = effectiveCategory;
+
       if (companyType !== 'all') params.companyType = companyType;
       if (country !== 'all') params.country = country;
       if (verificationStatus !== 'all') params.verificationStatus = verificationStatus;

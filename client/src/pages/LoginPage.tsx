@@ -29,10 +29,19 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const fillDemoAccount = (demoEmail: string, demoPass: string) => {
+  const fillDemoAccount = async (demoEmail: string, demoPass: string) => {
     setEmail(demoEmail);
     setPassword(demoPass);
     setError(null);
+    setLoading(true);
+    try {
+      await login(demoEmail, demoPass);
+      navigate('/app/overview');
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -168,7 +168,7 @@ export const IndustryExplorerPage: React.FC = () => {
           </div>
 
           <Link
-            to={`/app/discovery?category=${encodeURIComponent(activeDomain.name)}`}
+            to={`/app/discovery?category=${encodeURIComponent(activeDomain.slug)}`}
             className="px-4 py-2 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-semibold shadow-xs flex items-center gap-2 transition-colors shrink-0 cursor-pointer"
           >
             <Filter size={14} />
@@ -229,7 +229,7 @@ export const IndustryExplorerPage: React.FC = () => {
             </div>
 
             <Link
-              to={`/app/discovery?category=${encodeURIComponent(activeDomain.name)}`}
+              to={`/app/discovery?category=${encodeURIComponent(activeDomain.slug)}`}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-saas-primary hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition-colors shrink-0"
             >
               Browse All {activeDomain.name}

@@ -296,15 +296,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             </div>
 
             {/* Help / Docs */}
-            <a
-              href="file:///d:/VIASET/README.md"
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              to="/app/industries"
               className="p-1.5 rounded-lg text-saas-secondary hover:text-saas-primary hover:bg-saas-bg transition-colors"
-              title="Documentation & Viva Guide"
+              title="Documentation & Industry Taxonomy Guide"
             >
               <HelpCircle size={16} />
-            </a>
+            </Link>
 
             {/* Notifications */}
             <button

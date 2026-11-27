@@ -36,7 +36,12 @@ export const LandingPage: React.FC = () => {
   const handleQuickDemoLogin = async (email: string) => {
     setDemoLoggingIn(true);
     try {
-      await login(email, 'admin123');
+      const demoPasswords: Record<string, string> = {
+        'admin@viaset.io': 'Admin123!',
+        'lead@kaynes-semi.com': 'Company123!',
+        'engineer@mindgrove.in': 'User123!',
+      };
+      await login(email, demoPasswords[email] || 'Admin123!');
       navigate('/app/overview');
     } catch (err: any) {
       alert(err.message || 'Demo login failed');

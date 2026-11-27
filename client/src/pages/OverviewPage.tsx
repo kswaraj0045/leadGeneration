@@ -36,6 +36,30 @@ export const OverviewPage: React.FC = () => {
   const [recentCompanies, setRecentCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async (format: 'CSV' | 'EXCEL') => {
+    setExporting(true);
+    try {
+      const response = await api.post(
+        `/export/companies?format=${format}`,
+        { companyIds: [] },
+        { responseType: 'blob' }
+      );
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `viaset_companies_${format.toLowerCase()}.${format === 'EXCEL' ? 'xlsx' : 'csv'}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err: any) {
+      alert(err.message || 'Export failed. Please check plan limits.');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,12 +94,12 @@ export const OverviewPage: React.FC = () => {
   };
 
   const industries = [
-    { name: 'Semiconductor Foundries', count: 4, share: '14%', icon: Cpu, color: 'text-teal-600', bg: 'bg-teal-50' },
-    { name: 'Fabless IC Design Houses', count: 5, share: '18%', icon: Layers, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-    { name: 'OSAT Packaging & Test', count: 4, share: '14%', icon: Activity, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { name: 'High-Density Interconnect PCBs', count: 5, share: '18%', icon: Zap, color: 'text-amber-600', bg: 'bg-amber-50' },
-    { name: 'Electronics Manufacturing (EMS)', count: 5, share: '18%', icon: Building2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { name: 'Passive & Active Components', count: 5, share: '18%', icon: Globe2, color: 'text-purple-600', bg: 'bg-purple-50' },
+    { name: 'Semiconductor Foundries', slug: 'semiconductor-foundry', count: 4, share: '14%', icon: Cpu, color: 'text-teal-600', bg: 'bg-teal-50' },
+    { name: 'Fabless IC Design Houses', slug: 'ic-design-fabless', count: 5, share: '18%', icon: Layers, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+    { name: 'OSAT Packaging & Test', slug: 'osat-packaging', count: 4, share: '14%', icon: Activity, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { name: 'High-Density Interconnect PCBs', slug: 'pcb-fabrication', count: 5, share: '18%', icon: Zap, color: 'text-amber-600', bg: 'bg-amber-50' },
+    { name: 'Electronics Manufacturing (EMS)', slug: 'pcb-assembly-ems', count: 5, share: '18%', icon: Building2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { name: 'Passive & Active Components', slug: 'passive-components', count: 5, share: '18%', icon: Globe2, color: 'text-purple-600', bg: 'bg-purple-50' },
   ];
 
   const corridors = [
@@ -230,7 +254,7 @@ export const OverviewPage: React.FC = () => {
                   return (
                     <Link
                       key={ind.name}
-                      to={`/app/discovery?category=${encodeURIComponent(ind.name)}`}
+                      to={`/app/discovery?category=${encodeURIComponent(ind.slug)}`}
                       className="p-3 rounded-lg border border-saas-border hover:border-saas-accent/40 hover:bg-slate-50/70 transition-all flex items-center justify-between group"
                     >
                       <div className="flex items-center gap-3">
@@ -414,20 +438,22 @@ export const OverviewPage: React.FC = () => {
                 Export all 28+ verified semiconductor entities into structured CSV or multi-tab Excel format for procurement workflows.
               </p>
               <div className="flex gap-2">
-                <a
-                  href="/api/v1/export/csv"
-                  download="viaset-semiconductor-companies.csv"
-                  className="flex-1 text-center py-2 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-xs transition-colors"
+                <button
+                  type="button"
+                  disabled={exporting}
+                  onClick={() => handleExport('CSV')}
+                  className="flex-1 text-center py-2 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  Export CSV
-                </a>
-                <a
-                  href="/api/v1/export/excel"
-                  download="viaset-semiconductor-companies.xlsx"
-                  className="flex-1 text-center py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-bold text-xs shadow-xs transition-colors"
+                  {exporting ? 'Exporting...' : 'Export CSV'}
+                </button>
+                <button
+                  type="button"
+                  disabled={exporting}
+                  onClick={() => handleExport('EXCEL')}
+                  className="flex-1 text-center py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-bold text-xs shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  Export Excel
-                </a>
+                  {exporting ? 'Exporting...' : 'Export Excel'}
+                </button>
               </div>
             </div>
           </div>

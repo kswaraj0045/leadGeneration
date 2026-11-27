@@ -1,0 +1,308 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String         @id @default(cuid())
+  email           String         @unique
+  passwordHash    String
+  fullName        String
+  role            String         @default("COMPANY_USER") // ADMIN, COMPANY_ADMIN, COMPANY_USER
+  organizationId  String?
+  organization    Organization?  @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  savedCompanies  SavedCompany[]
+  savedSearches   SavedSearch[]
+  searchHistories SearchHistory[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([organizationId])
+  @@index([email])
+}
+
+model Organization {
+  id              String                    @id @default(cuid())
+  name            String
+  slug            String                    @unique
+  description     String?
+  website         String?
+  country         String                    @default("India")
+  planCode        String                    @default("BASIC") // BASIC, PRO, ENTERPRISE
+  members         User[]
+  savedCompanies  SavedCompany[]
+  savedSearches   SavedSearch[]
+  searchHistories SearchHistory[]
+  subscriptions   OrganizationSubscription[]
+  monthlyUsages   MonthlyUsage[]
+  auditLogs       AuditLog[]
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  @@index([slug])
+}
+
+model Industry {
+  id          String            @id @default(cuid())
+  name        String            @unique
+  slug        String            @unique
+  description String?
+  icon        String?
+  categories  CompanyCategory[]
+  createdAt   DateTime          @default(now())
+}
+
+model CompanyCategory {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  industryId  String
+  industry    Industry  @relation(fields: [industryId], references: [id], onDelete: Cascade)
+  companies   Company[]
+  createdAt   DateTime  @default(now())
+
+  @@index([industryId])
+}
+
+model Company {
+  id                 String                   @id @default(cuid())
+  name               String
+  slug               String                   @unique
+  description        String
+  categoryId         String
+  category           CompanyCategory          @relation(fields: [categoryId], references: [id])
+  companyType        String                   // Manufacturer, Service Provider, Design House, Distributor, Foundry, OSAT
+  hqCity             String
+  hqState            String
+  hqCountry          String
+  website            String?
+  contactEmail       String?
+  contactPhone       String?
+  employeeCountRange String?                  // e.g. "1-50", "51-200", "201-1000", "1000+"
+  yearEstablished    Int?
+  revenueRange       String?                  // e.g. "$1M-$10M", "$100M+"
+  verificationStatus String                   @default("UNVERIFIED") // UNVERIFIED, CLAIMED, VERIFIED
+  verificationNotes  String?
+  dataSource         String                   @default("Demonstration Record")
+  isDemonstration    Boolean                  @default(true)
+  logoUrl            String?
+  products           CompanyProduct[]
+  services           CompanyService[]
+  capabilities       CompanyCapability[]
+  certifications     CompanyCertification[]
+  industriesServed   CompanyIndustryServed[]
+  supplyNeeds        CompanySupplyNeed[]
+  savedIn            SavedCompany[]
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+
+  @@index([categoryId])
+  @@index([hqCountry])
+  @@index([verificationStatus])
+  @@index([companyType])
+}
+
+model CompanyProduct {
+  id               String   @id @default(cuid())
+  companyId        String
+  company          Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name             String
+  category         String?
+  description      String?
+  partNumberOrSpec String?
+  createdAt        DateTime @default(now())
+
+  @@index([companyId])
+  @@index([name])
+}
+
+model CompanyService {
+  id              String   @id @default(cuid())
+  companyId       String
+  company         Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name            String
+  category        String?
+  description     String?
+  capabilityLevel String?  // e.g. "Prototype", "High-Volume Production", "Turnkey"
+  createdAt       DateTime @default(now())
+
+  @@index([companyId])
+  @@index([name])
+}
+
+model CompanyCapability {
+  id             String   @id @default(cuid())
+  companyId      String
+  company        Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  capabilityType String   // Process Node, Cleanroom, SMT Placement, Packaging Type, Wafer Size, Layer Count
+  name           String
+  specifications String?
+  createdAt      DateTime @default(now())
+
+  @@index([companyId])
+  @@index([capabilityType])
+}
+
+model CompanyCertification {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name        String   // ISO 9001, IATF 16949, AS9100D, ISO 13485, RoHS, REACH
+  issuingBody String?
+  validUntil  String?
+  createdAt   DateTime @default(now())
+
+  @@index([companyId])
+  @@index([name])
+}
+
+model CompanyIndustryServed {
+  id           String   @id @default(cuid())
+  companyId    String
+  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  industryName String   // Automotive, Aerospace, Medical, Industrial IoT, Consumer, Defense, Telecom
+  createdAt    DateTime @default(now())
+
+  @@index([companyId])
+  @@index([industryName])
+}
+
+model CompanySupplyNeed {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  needType    String   // Material, Service, Component, Equipment, Subcontractor
+  description String
+  createdAt   DateTime @default(now())
+
+  @@index([companyId])
+}
+
+model SavedCompany {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId      String
+  company        Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  status         String       @default("EVALUATING") // EVALUATING, CONTACTED, PARTNER, SUPPLIER, ARCHIVED
+  notes          String?
+  tags           String?      // Comma-separated tags
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, companyId])
+  @@index([organizationId])
+  @@index([companyId])
+}
+
+model SavedSearch {
+  id              String       @id @default(cuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  queryParamsJson String       // JSON string of query filters
+  alertFrequency  String       @default("NONE") // NONE, DAILY, WEEKLY
+  lastRunAt       DateTime?
+  createdAt       DateTime     @default(now())
+
+  @@index([organizationId])
+  @@index([userId])
+}
+
+model SearchHistory {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  queryText      String?
+  filtersJson    String?
+  resultCount    Int          @default(0)
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+  @@index([createdAt])
+}
+
+model SubscriptionPlan {
+  id                       String   @id @default(cuid())
+  name                     String
+  code                     String   @unique // BASIC, PRO, ENTERPRISE
+  maxMonthlySearches       Int
+  maxSavedCompanies        Int
+  maxMonthlyExports        Int
+  canExportExcel           Boolean  @default(false)
+  canAccessAdvancedFilters Boolean  @default(false)
+  priceMonthly             Int      @default(0)
+  createdAt                DateTime @default(now())
+}
+
+model OrganizationSubscription {
+  id                 String       @id @default(cuid())
+  organizationId     String
+  organization       Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  planCode           String       @default("BASIC")
+  status             String       @default("ACTIVE") // ACTIVE, EXPIRED, CANCELLED
+  currentPeriodStart DateTime     @default(now())
+  currentPeriodEnd   DateTime
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@index([organizationId])
+}
+
+model MonthlyUsage {
+  id                  String       @id @default(cuid())
+  organizationId      String
+  organization        Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  yearMonth           String       // YYYY-MM
+  searchesUsed        Int          @default(0)
+  exportsUsed         Int          @default(0)
+  savedCompaniesCount Int          @default(0)
+  updatedAt           DateTime     @updatedAt
+
+  @@unique([organizationId, yearMonth])
+  @@index([organizationId])
+}
+
+model DataImport {
+  id              String    @id @default(cuid())
+  fileName        String
+  fileFormat      String    @default("CSV")
+  totalRows       Int       @default(0)
+  importedRows    Int       @default(0)
+  failedRows      Int       @default(0)
+  duplicateRows   Int       @default(0)
+  status          String    @default("PENDING") // PENDING, COMPLETED, FAILED
+  createdByUserId String?
+  createdAt       DateTime  @default(now())
+  completedAt     DateTime?
+  errorSummary    String?
+}
+
+model AuditLog {
+  id             String       @id @default(cuid())
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  userId         String?
+  userEmail      String?
+  action         String       // e.g. COMPANY_VERIFY, DATA_IMPORT, ORG_UPDATE, PLAN_CHANGE
+  entityType     String       // e.g. Company, Organization, User, DataImport
+  entityId       String?
+  detailsJson    String?
+  ipAddress      String?
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+  @@index([action])
+  @@index([createdAt])
+}

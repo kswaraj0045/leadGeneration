@@ -1,0 +1,28 @@
+{
+  "name": "viaset-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Semiconductor & Electronics Supply-Chain Intelligence Platform",
+  "scripts": {
+    "install:all": "pnpm install && pnpm --dir server install && pnpm --dir client install",
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm --prefix server run build && npm --prefix client run build",
+    "test": "npm --prefix server run test",
+    "db:generate": "cd server && npx prisma generate",
+    "db:push": "cd server && npx prisma db push",
+    "db:seed": "cd server && npm run seed"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "esbuild",
+      "prisma"
+    ]
+  }
+}

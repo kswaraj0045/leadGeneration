@@ -19,13 +19,14 @@ import {
   MapPin,
   Award,
   Layers,
+  ArrowRight,
+  CheckCircle2,
 } from 'lucide-react';
 import api from '../services/api';
 import { Company, CompanyCategory } from '../types';
 import { CompanyCard } from '../components/company/CompanyCard';
 import { CompanyDetailModal } from '../components/company/CompanyDetailModal';
-import { Navbar } from '../components/common/Navbar';
-import { Footer } from '../components/common/Footer';
+import { AppLayout } from '../components/layout/AppLayout';
 import { VerificationBadge, StageBadge } from '../components/common/Badge';
 import { useAuth } from '../context/AuthContext';
 
@@ -37,7 +38,7 @@ export const DiscoveryPage: React.FC = () => {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
 
   // Filter state
   const [q, setQ] = useState(searchParams.get('q') || '');
@@ -152,65 +153,63 @@ export const DiscoveryPage: React.FC = () => {
   const hasActiveFilters = q || category !== 'all' || companyType !== 'all' || country !== 'all' || verificationStatus !== 'all';
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Top Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+    <AppLayout>
+      <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
+        {/* TOP HEADER */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-saas-border pb-5">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-semibold">
-                SaaS Intelligence Console
+                Intelligence Console
               </span>
-              <span className="text-xs font-mono text-slate-500">• 28 Facilities Synced</span>
+              <span className="text-xs font-mono text-saas-secondary">• {totalCount} Facilities Indexed</span>
             </div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
-              Semiconductor & Electronics Registry Matrix
+            <h1 className="text-2xl font-bold tracking-tight text-saas-primary">
+              Company Discovery & Parametric Registry
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-saas-secondary mt-0.5">
               Query multi-tier verified wafer foundries, packaging facilities, interconnect manufacturers, and EMS turnkey providers.
             </p>
           </div>
 
-          {/* Action Toolbar */}
+          {/* ACTION TOOLBAR */}
           <div className="flex items-center gap-2">
             {/* View Mode Toggle */}
-            <div className="flex items-center rounded-lg border border-slate-300 p-0.5 bg-white">
-              <button
-                type="button"
-                onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded text-xs font-medium ${
-                  viewMode === 'grid' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-500 hover:text-slate-800'
-                }`}
-                title="Grid Card View"
-              >
-                <LayoutGrid size={15} />
-              </button>
+            <div className="flex items-center rounded-lg border border-saas-border p-0.5 bg-white">
               <button
                 type="button"
                 onClick={() => setViewMode('table')}
-                className={`p-1.5 rounded text-xs font-medium ${
-                  viewMode === 'table' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                className={`p-1.5 rounded text-xs font-medium cursor-pointer ${
+                  viewMode === 'table' ? 'bg-saas-primary text-white shadow-xs' : 'text-saas-secondary hover:text-saas-primary'
                 }`}
                 title="Dense Data Matrix View"
               >
                 <List size={15} />
               </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('grid')}
+                className={`p-1.5 rounded text-xs font-medium cursor-pointer ${
+                  viewMode === 'grid' ? 'bg-saas-primary text-white shadow-xs' : 'text-saas-secondary hover:text-saas-primary'
+                }`}
+                title="Grid Card View"
+              >
+                <LayoutGrid size={15} />
+              </button>
             </div>
 
             <button
               onClick={() => setSaveSearchOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-saas-border bg-white hover:bg-slate-50 text-saas-primary text-xs font-semibold shadow-xs transition-colors cursor-pointer"
             >
-              <Bookmark size={13} className="text-slate-400" />
+              <Bookmark size={13} className="text-saas-secondary" />
               <span>Save Query</span>
             </button>
 
             <button
               onClick={() => handleExport('CSV')}
               disabled={exporting}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-saas-border bg-white hover:bg-slate-50 text-saas-primary text-xs font-semibold shadow-xs transition-colors cursor-pointer"
             >
               <Download size={13} />
               <span>CSV</span>
@@ -219,232 +218,198 @@ export const DiscoveryPage: React.FC = () => {
             <button
               onClick={() => handleExport('EXCEL')}
               disabled={exporting}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-saas-border bg-white hover:bg-slate-50 text-saas-primary text-xs font-semibold shadow-xs transition-colors cursor-pointer"
             >
-              <FileSpreadsheet size={13} className="text-teal-700" />
-              <span>Export Excel</span>
+              <FileSpreadsheet size={13} />
+              <span>Excel</span>
             </button>
           </div>
         </div>
 
-        {/* Query & Filter Console Bar */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-4">
-          <form onSubmit={handleSearchSubmit} className="flex gap-2">
+        {/* PARAMETRIC SEARCH & FILTER WORKBENCH */}
+        <div className="bg-white rounded-xl border border-saas-border p-4 shadow-xs space-y-3">
+          <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-3">
             <div className="relative flex-1">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                <Search size={16} />
-              </div>
+              <Search className="absolute left-3 top-2.5 text-saas-secondary" size={16} />
               <input
                 type="text"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Query by process node (28nm, 180nm), SMT placement, cleanroom standard, or product catalog..."
-                className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-xs font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                placeholder="Search capability (e.g. 28nm, SMT 01005, Class 100, Cleanroom), company, or standard..."
+                className="w-full pl-9 pr-4 py-2 bg-saas-bg border border-saas-border rounded-lg text-xs text-saas-primary placeholder:text-slate-400 focus:outline-none focus:border-saas-accent focus:bg-white transition-all"
               />
             </div>
             <button
               type="submit"
-              className="px-5 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs transition-all shadow-xs"
+              className="px-4 py-2 bg-saas-accent hover:bg-teal-700 text-white rounded-lg text-xs font-semibold shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
             >
-              Run Query
+              <Filter size={14} />
+              Apply Parameters
             </button>
           </form>
 
-          {/* Facet Dropdowns */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-100 text-xs">
-            <div>
-              <label className="block text-[10px] font-mono font-bold uppercase text-slate-400 mb-1">
-                Ecosystem Vertical
-              </label>
-              <select
-                value={category}
-                onChange={(e) => {
-                  setCategory(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full py-1.5 px-2.5 border border-slate-300 rounded-lg text-xs text-slate-800 bg-white font-mono focus:outline-none focus:ring-1 focus:ring-teal-500"
-              >
-                <option value="all">All Ecosystem Verticals</option>
-                <option value="semiconductor-foundry">Semiconductor Foundry</option>
-                <option value="ic-design-fabless">IC Design / Fabless</option>
-                <option value="osat-packaging">OSAT & Packaging</option>
-                <option value="pcb-fabrication">PCB Fabrication</option>
-                <option value="pcb-assembly-ems">PCB Assembly / EMS</option>
-                <option value="passive-components">Passive Components</option>
-                <option value="discrete-semiconductors">Discrete Semiconductors</option>
-                <option value="semiconductor-distribution">Semiconductor Distribution</option>
-                <option value="semiconductor-equipment">Semiconductor Equipment</option>
-                <option value="test-measurement">Test & Measurement</option>
-                <option value="embedded-systems">Embedded Systems</option>
-              </select>
-            </div>
+          {/* FACET DROPDOWNS */}
+          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-saas-border text-xs">
+            {/* Category */}
+            <select
+              value={category}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setPage(1);
+              }}
+              className="px-2.5 py-1.5 bg-white border border-saas-border rounded-lg text-xs text-saas-primary focus:outline-none focus:border-saas-accent"
+            >
+              <option value="all">All Industry Verticals</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.slug}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
 
-            <div>
-              <label className="block text-[10px] font-mono font-bold uppercase text-slate-400 mb-1">
-                Vendor Facility Type
-              </label>
-              <select
-                value={companyType}
-                onChange={(e) => {
-                  setCompanyType(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full py-1.5 px-2.5 border border-slate-300 rounded-lg text-xs text-slate-800 bg-white font-mono focus:outline-none focus:ring-1 focus:ring-teal-500"
-              >
-                <option value="all">All Vendor Types</option>
-                <option value="Foundry">Foundry Facility</option>
-                <option value="Design House">Fabless Design House</option>
-                <option value="OSAT">OSAT Packaging Unit</option>
-                <option value="Manufacturer">OEM / Component Maker</option>
-                <option value="Service Provider">EMS Turnkey Provider</option>
-                <option value="Distributor">Authorized Distributor</option>
-              </select>
-            </div>
+            {/* Type */}
+            <select
+              value={companyType}
+              onChange={(e) => {
+                setCompanyType(e.target.value);
+                setPage(1);
+              }}
+              className="px-2.5 py-1.5 bg-white border border-saas-border rounded-lg text-xs text-saas-primary focus:outline-none focus:border-saas-accent"
+            >
+              <option value="all">All Organization Types</option>
+              <option value="MANUFACTURER">Manufacturer</option>
+              <option value="SUPPLIER">Supplier / Distributor</option>
+              <option value="SERVICE_PROVIDER">Service Provider / Design</option>
+              <option value="BUYER">Enterprise Buyer / OEM</option>
+            </select>
 
-            <div>
-              <label className="block text-[10px] font-mono font-bold uppercase text-slate-400 mb-1">
-                Regional Corridor
-              </label>
-              <select
-                value={country}
-                onChange={(e) => {
-                  setCountry(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full py-1.5 px-2.5 border border-slate-300 rounded-lg text-xs text-slate-800 bg-white font-mono focus:outline-none focus:ring-1 focus:ring-teal-500"
-              >
-                <option value="all">All Geographic Corridors</option>
-                <option value="India">India</option>
-                <option value="United States">United States</option>
-                <option value="Israel">Israel</option>
-                <option value="Japan">Japan</option>
-                <option value="Taiwan">Taiwan</option>
-              </select>
-            </div>
+            {/* Country */}
+            <select
+              value={country}
+              onChange={(e) => {
+                setCountry(e.target.value);
+                setPage(1);
+              }}
+              className="px-2.5 py-1.5 bg-white border border-saas-border rounded-lg text-xs text-saas-primary focus:outline-none focus:border-saas-accent"
+            >
+              <option value="all">All Geographic Hubs</option>
+              <option value="IN">India (IN)</option>
+              <option value="TW">Taiwan (TW)</option>
+              <option value="US">United States (US)</option>
+              <option value="JP">Japan (JP)</option>
+              <option value="AT">Austria / EU (AT)</option>
+            </select>
 
-            <div>
-              <label className="block text-[10px] font-mono font-bold uppercase text-slate-400 mb-1">
-                Data Provenance / Status
-              </label>
-              <select
-                value={verificationStatus}
-                onChange={(e) => {
-                  setVerificationStatus(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full py-1.5 px-2.5 border border-slate-300 rounded-lg text-xs text-slate-800 bg-white font-mono focus:outline-none focus:ring-1 focus:ring-teal-500"
-              >
-                <option value="all">All Provenance Statuses</option>
-                <option value="VERIFIED">Verified Enterprise Record</option>
-                <option value="CLAIMED">Claimed Submission</option>
-                <option value="UNVERIFIED">Unverified Directory Record</option>
-              </select>
-            </div>
-          </div>
+            {/* Verification Status */}
+            <select
+              value={verificationStatus}
+              onChange={(e) => {
+                setVerificationStatus(e.target.value);
+                setPage(1);
+              }}
+              className="px-2.5 py-1.5 bg-white border border-saas-border rounded-lg text-xs text-saas-primary focus:outline-none focus:border-saas-accent"
+            >
+              <option value="all">All Audit Statuses</option>
+              <option value="VERIFIED">Verified Only (Audit Backed)</option>
+              <option value="CLAIMED">Claimed Entities</option>
+              <option value="UNVERIFIED">Unverified Records</option>
+            </select>
 
-          {/* Active Filter Pills */}
-          {hasActiveFilters && (
-            <div className="flex flex-wrap items-center gap-2 pt-2 text-xs">
-              <span className="text-slate-400 text-[10px] font-mono uppercase">Applied Parameters:</span>
-              {q && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[11px] border border-slate-200">
-                  q="{q}"
-                  <button onClick={() => setQ('')}><X size={12} /></button>
-                </span>
-              )}
-              {category !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-teal-50 text-teal-800 font-mono text-[11px] border border-teal-200">
-                  vertical:{category}
-                  <button onClick={() => setCategory('all')}><X size={12} /></button>
-                </span>
-              )}
-              {companyType !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[11px] border border-slate-200">
-                  type:{companyType}
-                  <button onClick={() => setCompanyType('all')}><X size={12} /></button>
-                </span>
-              )}
-              {country !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[11px] border border-slate-200">
-                  country:{country}
-                  <button onClick={() => setCountry('all')}><X size={12} /></button>
-                </span>
-              )}
-              {verificationStatus !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[11px] border border-slate-200">
-                  status:{verificationStatus}
-                  <button onClick={() => setVerificationStatus('all')}><X size={12} /></button>
-                </span>
-              )}
+            {hasActiveFilters && (
               <button
+                type="button"
                 onClick={clearFilters}
-                className="text-teal-600 hover:text-teal-800 text-[11px] font-mono font-semibold underline ml-1"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-red-600 hover:bg-red-50 border border-red-200 font-medium transition-colors cursor-pointer"
               >
-                Reset All
+                <X size={12} />
+                Clear Filters
               </button>
-            </div>
-          )}
+            )}
+
+            <span className="ml-auto text-xs font-mono text-saas-secondary">
+              Showing <strong>{companies.length}</strong> of <strong>{totalCount}</strong> matching entities
+            </span>
+          </div>
         </div>
 
-        {/* Results Counter & Density Info */}
-        <div className="flex items-center justify-between text-xs text-slate-500 font-mono">
-          <p>
-            INDEXED FACILITIES: <strong className="text-slate-900">{companies.length}</strong> DISPLAYED / <strong className="text-slate-900">{totalCount}</strong> TOTAL
-          </p>
-          <span className="text-[11px] text-slate-400">Click row or profile button to open technical audit dossier</span>
-        </div>
-
-        {/* RESULTS: DENSE DATA TABLE OR SPEC GRID */}
+        {/* RESULTS VIEWPORT */}
         {loading ? (
-          <div className="py-24 text-center">
-            <RefreshCw size={24} className="animate-spin mx-auto text-teal-600 mb-2" />
-            <p className="text-xs font-mono text-slate-500">Querying verified semiconductor registry...</p>
+          <div className="bg-white rounded-xl border border-saas-border p-12 text-center">
+            <RefreshCw size={24} className="animate-spin text-saas-accent mx-auto mb-2" />
+            <p className="text-xs text-saas-secondary">Filtering normalized company intelligence...</p>
           </div>
         ) : companies.length > 0 ? (
           viewMode === 'table' ? (
-            /* High-Density SaaS Matrix Table */
-            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+            /* DENSE DATA MATRIX VIEW */
+            <div className="bg-white rounded-xl border border-saas-border shadow-xs overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-200 text-left text-xs">
-                  <thead className="bg-slate-50 text-slate-500 font-mono text-[10px] uppercase">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-saas-bg text-saas-secondary font-semibold border-b border-saas-border">
                     <tr>
-                      <th className="px-4 py-3 font-semibold">Enterprise / Facility</th>
-                      <th className="px-4 py-3 font-semibold">Vertical Category</th>
-                      <th className="px-4 py-3 font-semibold">Key Technical Capabilities</th>
-                      <th className="px-4 py-3 font-semibold">Quality Standards</th>
-                      <th className="px-4 py-3 font-semibold">Location</th>
-                      <th className="px-4 py-3 font-semibold">Provenance</th>
-                      <th className="px-4 py-3 font-semibold text-right">Dossier</th>
+                      <th className="px-4 py-3">Facility / Entity</th>
+                      <th className="px-4 py-3">Vertical & Category</th>
+                      <th className="px-4 py-3">Headquarters</th>
+                      <th className="px-4 py-3">Technical Capabilities</th>
+                      <th className="px-4 py-3">Certifications</th>
+                      <th className="px-4 py-3">Audit Status</th>
+                      <th className="px-4 py-3 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 font-sans">
+                  <tbody className="divide-y divide-saas-border">
                     {companies.map((c) => (
                       <tr
                         key={c.id}
                         onClick={() => setSelectedCompany(c)}
-                        className="hover:bg-slate-50/80 cursor-pointer transition-colors"
+                        className="hover:bg-slate-50/80 transition-colors cursor-pointer"
                       >
                         <td className="px-4 py-3">
-                          <p className="font-bold text-slate-900 hover:text-teal-600 transition-colors">{c.name}</p>
-                          <span className="text-[10px] font-mono text-slate-400">{c.companyType}</span>
-                        </td>
-                        <td className="px-4 py-3 font-mono text-slate-600 text-[11px]">
-                          {c.category?.name || c.companyType}
+                          <div className="font-bold text-saas-primary hover:text-saas-accent transition-colors">
+                            {c.name}
+                          </div>
+                          <div className="text-[11px] text-saas-secondary truncate max-w-xs">
+                            {c.description}
+                          </div>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex flex-wrap gap-1 max-w-xs font-mono text-[10px]">
+                          <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px] font-mono border border-slate-200">
+                            {c.category?.name || c.companyType}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-saas-secondary">
+                          <span className="flex items-center gap-1">
+                            <MapPin size={12} className="text-slate-400 shrink-0" />
+                            {c.hqCity}, {c.hqCountry}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-wrap gap-1 max-w-xs">
                             {c.capabilities?.slice(0, 2).map((cap) => (
-                              <span key={cap.id} className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
+                              <span
+                                key={cap.id}
+                                className="px-1.5 py-0.5 rounded bg-teal-50 text-teal-800 text-[10px] font-mono border border-teal-200/60 truncate max-w-[120px]"
+                                title={cap.name}
+                              >
                                 {cap.name}
                               </span>
                             ))}
+                            {(c.capabilities?.length || 0) > 2 && (
+                              <span className="text-[10px] text-saas-secondary">
+                                +{(c.capabilities?.length || 0) - 2}
+                              </span>
+                            )}
                           </div>
                         </td>
-                        <td className="px-4 py-3 font-mono text-[10px] text-slate-500">
-                          {c.certifications?.map((cert) => cert.name).slice(0, 2).join(', ') || 'N/A'}
-                        </td>
-                        <td className="px-4 py-3 text-slate-600 text-xs">
-                          {c.hqCity}, {c.hqCountry}
+                        <td className="px-4 py-3">
+                          <div className="flex flex-wrap gap-1 max-w-xs">
+                            {c.certifications?.slice(0, 2).map((cert) => (
+                              <span
+                                key={cert.id}
+                                className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-mono border border-slate-200"
+                              >
+                                {cert.name}
+                              </span>
+                            ))}
+                          </div>
                         </td>
                         <td className="px-4 py-3">
                           <VerificationBadge status={c.verificationStatus} size="sm" />
@@ -456,7 +421,7 @@ export const DiscoveryPage: React.FC = () => {
                               e.stopPropagation();
                               setSelectedCompany(c);
                             }}
-                            className="px-2.5 py-1 rounded border border-slate-300 text-slate-700 hover:bg-slate-100 text-[11px] font-semibold"
+                            className="px-2.5 py-1 rounded border border-saas-border text-saas-primary hover:bg-slate-100 text-[11px] font-semibold cursor-pointer"
                           >
                             Inspect
                           </button>
@@ -468,7 +433,7 @@ export const DiscoveryPage: React.FC = () => {
               </div>
             </div>
           ) : (
-            /* Technical Spec Grid */
+            /* TECHNICAL SPEC GRID */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {companies.map((company) => (
                 <CompanyCard
@@ -481,58 +446,58 @@ export const DiscoveryPage: React.FC = () => {
             </div>
           )
         ) : (
-          <div className="bg-white rounded-xl border border-slate-200 p-12 text-center max-w-lg mx-auto">
+          <div className="bg-white rounded-xl border border-saas-border p-12 text-center max-w-lg mx-auto">
             <Building2 size={36} className="text-slate-400 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-slate-900">No Facilities Found Matching Query</h3>
-            <p className="text-xs text-slate-500 mt-1 mb-4">
+            <h3 className="text-base font-bold text-saas-primary">No Facilities Found Matching Query</h3>
+            <p className="text-xs text-saas-secondary mt-1 mb-4">
               Try adjusting your query parameters, broadening node filters, or clearing specific constraints.
             </p>
             <button
               onClick={clearFilters}
-              className="px-4 py-2 rounded-lg bg-teal-600 text-white text-xs font-semibold hover:bg-teal-500 transition-colors"
+              className="px-4 py-2 rounded-lg bg-saas-accent text-white text-xs font-semibold hover:bg-teal-700 transition-colors cursor-pointer"
             >
               Reset Query Parameters
             </button>
           </div>
         )}
 
-        {/* Pagination Controls */}
+        {/* PAGINATION CONTROLS */}
         {totalPages > 1 && (
           <div className="pt-4 flex items-center justify-center gap-2">
             <button
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="p-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 transition-colors"
+              className="p-2 rounded-lg border border-saas-border bg-white hover:bg-slate-50 text-saas-primary disabled:opacity-40 transition-colors cursor-pointer"
             >
               <ChevronLeft size={16} />
             </button>
-            <span className="text-xs font-mono text-slate-600 px-3">
+            <span className="text-xs font-mono text-saas-secondary px-3">
               Page {page} of {totalPages}
             </span>
             <button
               disabled={page >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="p-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 disabled:opacity-40 transition-colors"
+              className="p-2 rounded-lg border border-saas-border bg-white hover:bg-slate-50 text-saas-primary disabled:opacity-40 transition-colors cursor-pointer"
             >
               <ChevronRight size={16} />
             </button>
           </div>
         )}
-      </main>
+      </div>
 
-      {/* Technical Detail Modal */}
+      {/* DETAIL MODAL */}
       <CompanyDetailModal
         company={selectedCompany}
         onClose={() => setSelectedCompany(null)}
         onSaveUpdated={() => fetchCompanies()}
       />
 
-      {/* Save Search Modal */}
+      {/* SAVE SEARCH MODAL */}
       {saveSearchOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-slate-200 max-w-md w-full p-6 shadow-xl animate-in fade-in">
-            <h3 className="text-base font-bold text-slate-900 mb-1">Save Registry Query</h3>
-            <p className="text-xs text-slate-500 mb-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl border border-saas-border max-w-md w-full p-6 shadow-xl animate-in fade-in">
+            <h3 className="text-base font-bold text-saas-primary mb-1">Save Registry Query</h3>
+            <p className="text-xs text-saas-secondary mb-4">
               Store this query to re-execute regular supply-chain scans and monitor ecosystem additions.
             </p>
 
@@ -542,14 +507,14 @@ export const DiscoveryPage: React.FC = () => {
 
             <form onSubmit={handleSaveSearch} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Query Label</label>
+                <label className="block text-xs font-semibold text-saas-primary mb-1">Query Label</label>
                 <input
                   type="text"
                   required
                   value={searchName}
                   onChange={(e) => setSearchName(e.target.value)}
                   placeholder="e.g. 28nm Wafer Foundries & OSAT Packaging"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono text-slate-900 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  className="w-full px-3 py-2 border border-saas-border rounded-lg text-xs font-mono text-saas-primary focus:outline-none focus:border-saas-accent"
                 />
               </div>
 
@@ -557,13 +522,13 @@ export const DiscoveryPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSaveSearchOpen(false)}
-                  className="px-3 py-1.5 rounded-lg border border-slate-300 text-xs text-slate-600 hover:bg-slate-50"
+                  className="px-3 py-1.5 rounded-lg border border-saas-border text-xs text-saas-secondary hover:bg-slate-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold"
+                  className="px-4 py-1.5 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-semibold cursor-pointer"
                 >
                   Save Query
                 </button>
@@ -572,8 +537,6 @@ export const DiscoveryPage: React.FC = () => {
           </div>
         </div>
       )}
-
-      <Footer />
-    </div>
+    </AppLayout>
   );
 };

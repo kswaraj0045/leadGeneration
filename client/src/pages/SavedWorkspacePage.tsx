@@ -12,11 +12,13 @@ import {
   Tag,
   AlertCircle,
   RefreshCw,
+  Clock,
+  Layers,
+  Cpu,
 } from 'lucide-react';
 import api from '../services/api';
 import { SavedCompany, PipelineStage } from '../types';
-import { Navbar } from '../components/common/Navbar';
-import { Footer } from '../components/common/Footer';
+import { AppLayout } from '../components/layout/AppLayout';
 import { VerificationBadge, StageBadge } from '../components/common/Badge';
 
 export const SavedWorkspacePage: React.FC = () => {
@@ -65,55 +67,70 @@ export const SavedWorkspacePage: React.FC = () => {
       setEditingId(null);
       fetchSaved();
     } catch (err: any) {
-      alert(err.message || 'Failed to update record.');
+      alert(err.message || 'Failed to update pipeline stage.');
     }
   };
 
-  const handleRemove = async (id: string) => {
-    if (!window.confirm('Remove this company from your organization workspace?')) return;
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Remove company from your supplier pipeline?')) return;
     try {
       await api.delete(`/saved/${id}`);
       fetchSaved();
     } catch (err: any) {
-      alert(err.message || 'Failed to remove company.');
+      alert(err.message || 'Failed to remove saved company.');
     }
   };
 
   const handleExport = async (format: 'CSV' | 'EXCEL') => {
+    if (savedList.length === 0) return;
     setExporting(true);
     try {
-      const response = await api.post(
-        `/export/saved?format=${format}`,
-        {},
+      const res = await api.post(
+        `/export/companies?format=${format}`,
+        { companyIds: savedList.map((s) => s.companyId) },
         { responseType: 'blob' }
       );
-      const blob = new Blob([response.data]);
+      const blob = new Blob([res.data]);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `viaset_saved_partners_${format.toLowerCase()}.${format === 'EXCEL' ? 'xlsx' : 'csv'}`);
+      link.setAttribute('download', `sourcing_pipeline_${format.toLowerCase()}.${format === 'EXCEL' ? 'xlsx' : 'csv'}`);
       document.body.appendChild(link);
       link.click();
       link.remove();
     } catch (err: any) {
-      alert(err.message || 'Failed to export saved list.');
+      alert(err.message || 'Export failed.');
     } finally {
       setExporting(false);
     }
   };
 
-  return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <Navbar />
+  const stages: { label: string; value: string }[] = [
+    { label: 'All Pipeline Suppliers', value: 'ALL' },
+    { label: 'Identified', value: 'IDENTIFIED' },
+    { label: 'Contacted', value: 'CONTACTED' },
+    { label: 'Evaluating', value: 'EVALUATING' },
+    { label: 'Approved', value: 'APPROVED' },
+    { label: 'Disqualified', value: 'DISQUALIFIED' },
+  ];
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+  return (
+    <AppLayout>
+      <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-saas-border pb-5">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-              Supplier & Partner Pipeline
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-semibold">
+                Vendor Management System
+              </span>
+              <span className="text-xs font-mono text-saas-secondary">• {savedList.length} Tracked Suppliers</span>
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-saas-primary">
+              Supplier Sourcing Pipeline
             </h1>
-            <p className="text-xs text-slate-500 mt-1">
-              Private organization workspace to organize candidate suppliers, add engineering notes, and track relationship lifecycle.
+            <p className="text-xs text-saas-secondary mt-0.5">
+              Manage qualification status, internal engineering audit notes, and engagement workflows for shortlisted suppliers.
             </p>
           </div>
 
@@ -121,127 +138,152 @@ export const SavedWorkspacePage: React.FC = () => {
             <button
               onClick={() => handleExport('CSV')}
               disabled={exporting || savedList.length === 0}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-saas-border bg-white hover:bg-slate-50 text-saas-primary text-xs font-semibold shadow-xs disabled:opacity-40 transition-colors cursor-pointer"
             >
-              <Download size={14} />
+              <Download size={13} />
               <span>Export CSV</span>
             </button>
             <button
               onClick={() => handleExport('EXCEL')}
               disabled={exporting || savedList.length === 0}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-saas-border bg-white hover:bg-slate-50 text-saas-primary text-xs font-semibold shadow-xs disabled:opacity-40 transition-colors cursor-pointer"
             >
-              <FileSpreadsheet size={14} className="text-teal-600" />
+              <FileSpreadsheet size={13} />
               <span>Export Excel</span>
             </button>
           </div>
         </div>
 
-        {/* Pipeline Stage Filter Tabs */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {['ALL', 'EVALUATING', 'CONTACTED', 'PARTNER', 'SUPPLIER', 'ARCHIVED'].map((stage) => (
+        {/* STAGE TABS */}
+        <div className="flex flex-wrap gap-1.5 bg-white p-2 rounded-xl border border-saas-border">
+          {stages.map((st) => (
             <button
-              key={stage}
-              onClick={() => setStatusFilter(stage)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                statusFilter === stage
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+              key={st.value}
+              onClick={() => setStatusFilter(st.value)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                statusFilter === st.value
+                  ? 'bg-saas-primary text-white shadow-xs'
+                  : 'bg-white text-saas-secondary hover:text-saas-primary hover:bg-slate-50'
               }`}
             >
-              {stage}
+              {st.label}
             </button>
           ))}
         </div>
 
-        {/* Saved Companies List */}
+        {/* PIPELINE LIST */}
         {loading ? (
-          <div className="py-20 text-center">
-            <RefreshCw size={24} className="animate-spin mx-auto text-teal-600 mb-2" />
-            <p className="text-xs text-slate-500">Loading saved pipeline records...</p>
+          <div className="bg-white rounded-xl border border-saas-border p-12 text-center">
+            <RefreshCw size={24} className="animate-spin text-saas-accent mx-auto mb-2" />
+            <p className="text-xs text-saas-secondary">Loading pipeline suppliers...</p>
           </div>
         ) : savedList.length > 0 ? (
           <div className="space-y-4">
             {savedList.map((item) => {
               const isEditing = editingId === item.id;
+              const company = item.company;
+
               return (
                 <div
                   key={item.id}
-                  className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-3"
+                  className="bg-white rounded-xl border border-saas-border p-5 shadow-xs hover:border-slate-300 transition-all flex flex-col space-y-4"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <StageBadge stage={item.status} />
-                        <span className="text-xs font-mono text-slate-400">
-                          {item.company.category?.name || item.company.companyType}
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-base font-bold text-saas-primary">
+                          {company.name}
+                        </h3>
+                        <VerificationBadge status={company.verificationStatus} size="sm" />
+                        <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                          {company.category?.name || company.companyType}
                         </span>
-                        <VerificationBadge status={item.company.verificationStatus} size="sm" />
+                        <StageBadge stage={item.status} size="sm" />
                       </div>
-                      <h3 className="text-lg font-bold text-slate-900">{item.company.name}</h3>
-                      <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                        <MapPin size={13} className="text-slate-400" />
-                        {item.company.hqCity}, {item.company.hqCountry}
+
+                      <div className="flex items-center gap-3 text-xs text-saas-secondary">
+                        <span className="flex items-center gap-1">
+                          <MapPin size={12} className="text-slate-400" />
+                          {company.hqCity}, {company.hqCountry}
+                        </span>
+                        {company.yearEstablished && (
+                          <span>Est. {company.yearEstablished}</span>
+                        )}
+                        {item.user && (
+                          <span className="text-[11px] font-mono text-slate-400">
+                            Saved by: {item.user.fullName}
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-xs text-saas-secondary max-w-3xl leading-relaxed">
+                        {company.description}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       <button
-                        type="button"
-                        onClick={() => handleStartEdit(item)}
-                        className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs flex items-center gap-1"
+                        onClick={() => (isEditing ? setEditingId(null) : handleStartEdit(item))}
+                        className="px-2.5 py-1.5 rounded-lg border border-saas-border hover:bg-slate-50 text-xs font-semibold text-saas-primary flex items-center gap-1.5 transition-colors cursor-pointer"
                       >
-                        <Edit3 size={13} />
-                        <span>Edit</span>
+                        <Edit3 size={13} className="text-saas-secondary" />
+                        <span>{isEditing ? 'Cancel Edit' : 'Edit Stage / Notes'}</span>
                       </button>
                       <button
-                        type="button"
-                        onClick={() => handleRemove(item.id)}
-                        className="p-1.5 rounded-lg border border-slate-200 hover:bg-red-50 text-red-600 text-xs"
-                        title="Remove from saved workspace"
+                        onClick={() => handleDelete(item.id)}
+                        className="p-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                        title="Remove from pipeline"
                       >
-                        <Trash2 size={13} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
 
-                  {/* Inline Edit Form */}
+                  {/* INLINE EDIT FORM */}
                   {isEditing ? (
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3 text-xs">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="pt-4 border-t border-saas-border bg-slate-50/70 p-4 rounded-lg space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                          <label className="block font-semibold text-slate-700 mb-1">Pipeline Stage</label>
+                          <label className="block text-xs font-semibold text-saas-primary mb-1">
+                            Pipeline Qualification Stage
+                          </label>
                           <select
                             value={editStatus}
                             onChange={(e) => setEditStatus(e.target.value as PipelineStage)}
-                            className="w-full py-1.5 px-2.5 border border-slate-300 rounded-lg text-xs"
+                            className="w-full px-3 py-1.5 text-xs bg-white border border-saas-border rounded-lg font-mono focus:outline-none focus:border-saas-accent"
                           >
-                            <option value="EVALUATING">Evaluating</option>
-                            <option value="CONTACTED">Contacted</option>
-                            <option value="PARTNER">Partner</option>
-                            <option value="SUPPLIER">Approved Supplier</option>
-                            <option value="ARCHIVED">Archived</option>
+                            <option value="IDENTIFIED">IDENTIFIED (Initial Shortlist)</option>
+                            <option value="CONTACTED">CONTACTED (RFI / NDA Sent)</option>
+                            <option value="EVALUATING">EVALUATING (Audit / Spec Review)</option>
+                            <option value="APPROVED">APPROVED (Qualified Vendor List)</option>
+                            <option value="DISQUALIFIED">DISQUALIFIED (Does Not Meet Specs)</option>
                           </select>
                         </div>
+
                         <div>
-                          <label className="block font-semibold text-slate-700 mb-1">Custom Tags</label>
+                          <label className="block text-xs font-semibold text-saas-primary mb-1">
+                            Internal Project Tags (Comma Separated)
+                          </label>
                           <input
                             type="text"
                             value={editTags}
                             onChange={(e) => setEditTags(e.target.value)}
-                            placeholder="e.g. 28nm, High Priority"
-                            className="w-full py-1.5 px-2.5 border border-slate-300 rounded-lg text-xs"
+                            placeholder="e.g. Project-Avionics, Q3-Delivery, Automotive-BMS"
+                            className="w-full px-3 py-1.5 text-xs bg-white border border-saas-border rounded-lg focus:outline-none focus:border-saas-accent"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block font-semibold text-slate-700 mb-1">Private Notes</label>
+                        <label className="block text-xs font-semibold text-saas-primary mb-1">
+                          Engineering Audit & Negotiation Notes
+                        </label>
                         <textarea
                           rows={3}
                           value={editNotes}
                           onChange={(e) => setEditNotes(e.target.value)}
-                          className="w-full py-1.5 px-2.5 border border-slate-300 rounded-lg text-xs"
+                          placeholder="Document NDA status, sample evaluations, lead time quotes, or yield test notes..."
+                          className="w-full px-3 py-2 text-xs bg-white border border-saas-border rounded-lg focus:outline-none focus:border-saas-accent resize-none"
                         />
                       </div>
 
@@ -249,63 +291,65 @@ export const SavedWorkspacePage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setEditingId(null)}
-                          className="px-3 py-1 rounded-md border border-slate-300 text-slate-600"
+                          className="px-3 py-1.5 rounded-lg border border-saas-border text-xs text-saas-secondary hover:bg-slate-50 cursor-pointer"
                         >
                           Cancel
                         </button>
                         <button
                           type="button"
                           onClick={() => handleSaveEdit(item.id)}
-                          className="px-4 py-1 rounded-md bg-teal-600 hover:bg-teal-500 text-white font-semibold"
+                          className="px-4 py-1.5 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-semibold shadow-xs flex items-center gap-1 cursor-pointer"
                         >
-                          Save Changes
+                          <Check size={13} />
+                          Save Pipeline State
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <div>
-                      {item.notes && (
-                        <div className="p-3 rounded-lg bg-slate-50 border border-slate-100 text-xs text-slate-700 font-sans">
-                          <span className="font-semibold text-slate-500 block text-[10px] uppercase mb-0.5">
-                            Private Notes:
-                          </span>
-                          {item.notes}
-                        </div>
-                      )}
-
-                      {item.tags && (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {item.tags.split(',').map((t, i) => (
-                            <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[11px] font-mono">
-                              <Tag size={10} className="text-slate-400" />
-                              {t.trim()}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                    /* NOTES & TAGS PREVIEW */
+                    (item.notes || item.tags) && (
+                      <div className="pt-3 border-t border-saas-border flex flex-col md:flex-row md:items-center justify-between text-xs gap-2">
+                        {item.notes && (
+                          <div className="text-slate-600 bg-slate-50 px-3 py-1.5 rounded border border-saas-border max-w-2xl font-mono text-[11px]">
+                            <strong>Audit Notes:</strong> {item.notes}
+                          </div>
+                        )}
+                        {item.tags && (
+                          <div className="flex flex-wrap gap-1">
+                            {item.tags.split(',').map((tag, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200"
+                              >
+                                <Tag size={10} className="text-teal-600" />
+                                {tag.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )
                   )}
-
-                  <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400 font-mono">
-                    <span>Saved by: {item.user?.fullName || 'Organization Member'}</span>
-                    <span>Last updated: {new Date(item.updatedAt).toLocaleDateString()}</span>
-                  </div>
                 </div>
               );
             })}
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-slate-200 p-12 text-center max-w-md mx-auto">
-            <Bookmark size={36} className="text-slate-400 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-slate-900">Your pipeline is empty</h3>
-            <p className="text-xs text-slate-500 mt-1 mb-4">
-              Explore companies in the Discovery tab or Matching Engine and save promising suppliers to build your sourcing pipeline.
+          <div className="bg-white rounded-xl border border-saas-border p-12 text-center max-w-lg mx-auto">
+            <Bookmark size={36} className="text-saas-accent mx-auto mb-3 opacity-50" />
+            <h3 className="text-base font-bold text-saas-primary">No Suppliers in Pipeline</h3>
+            <p className="text-xs text-saas-secondary mt-1 mb-4">
+              Explore the Registry Matrix or run the Matching Engine to shortlist and track qualified semiconductor partners.
             </p>
+            <a
+              href="/app/discovery"
+              className="inline-block px-4 py-2 rounded-lg bg-saas-accent text-white text-xs font-semibold hover:bg-teal-700 transition-colors"
+            >
+              Discover Suppliers
+            </a>
           </div>
         )}
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </AppLayout>
   );
 };

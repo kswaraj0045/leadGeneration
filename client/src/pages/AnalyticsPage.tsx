@@ -20,13 +20,13 @@ import {
   TrendingUp,
   RefreshCw,
   Zap,
+  Building2,
 } from 'lucide-react';
 import api from '../services/api';
-import { Navbar } from '../components/common/Navbar';
-import { Footer } from '../components/common/Footer';
+import { AppLayout } from '../components/layout/AppLayout';
 import { PlanBadge } from '../components/common/Badge';
 
-const COLORS = ['#0d9488', '#0284c7', '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
+const COLORS = ['#0F8B8D', '#0284c7', '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
 
 export const AnalyticsPage: React.FC = () => {
   const [data, setData] = useState<any | null>(null);
@@ -45,223 +45,220 @@ export const AnalyticsPage: React.FC = () => {
 
   if (loading || !data) {
     return (
-      <div className="min-h-screen flex flex-col bg-slate-50">
-        <Navbar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <RefreshCw size={28} className="animate-spin text-teal-600 mx-auto mb-2" />
-            <p className="text-xs text-slate-500">Aggregating supply-chain metrics...</p>
-          </div>
+      <AppLayout>
+        <div className="p-12 text-center max-w-7xl mx-auto">
+          <RefreshCw size={28} className="animate-spin text-saas-accent mx-auto mb-2" />
+          <p className="text-xs text-saas-secondary">Aggregating supply-chain metrics...</p>
         </div>
-        <Footer />
-      </div>
+      </AppLayout>
     );
   }
 
-  const { kpis, categoryDistribution, countryDistribution, typeDistribution } = data;
-
-  const verificationPieData = [
-    { name: 'Verified Enterprise', value: kpis.verifiedCompanies, color: '#0d9488' },
-    { name: 'Claimed Submissions', value: kpis.claimedCompanies, color: '#f59e0b' },
-    { name: 'Unverified Entries', value: kpis.unverifiedCompanies, color: '#94a3b8' },
-  ];
+  const kpis = data.kpis;
+  const categoryData = data.categoryDistribution.map((c: any) => ({
+    name: c.industry.replace('Semiconductor ', '').replace('Electronics ', ''),
+    count: c.companyCount,
+  }));
+  const countryData = data.countryDistribution;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Semiconductor Supply-Chain Analytics
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Real-time database-driven intelligence on industry categories, global supplier distributions, and organization monthly quota utilization.
-          </p>
+    <AppLayout>
+      <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-saas-border pb-5">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-semibold">
+                Platform Intelligence Telemetry
+              </span>
+              <span className="text-xs font-mono text-saas-secondary">• Real-Time Aggregation</span>
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-saas-primary">
+              Semiconductor Supply-Chain Analytics
+            </h1>
+            <p className="text-xs text-saas-secondary mt-0.5">
+              Comprehensive telemetry of verified facilities, category distribution, and geographic concentrations.
+            </p>
+          </div>
         </div>
 
-        {/* KPI Cards */}
+        {/* METRICS ROW */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between text-slate-400 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Total Companies</span>
-              <Cpu size={18} className="text-teal-600" />
+          <div className="bg-white p-5 rounded-xl border border-saas-border shadow-xs">
+            <div className="flex items-center justify-between text-saas-secondary mb-2">
+              <span className="text-xs font-medium uppercase tracking-wider">Total Entities</span>
+              <Building2 size={16} className="text-saas-accent" />
             </div>
-            <p className="text-3xl font-extrabold text-slate-900 font-mono">{kpis.totalCompanies}</p>
-            <p className="text-[11px] text-teal-700 font-mono mt-1">Indexed in Registry</p>
+            <div className="text-2xl font-bold text-saas-primary font-mono">{kpis.totalCompanies}</div>
+            <div className="text-[11px] text-emerald-600 font-medium mt-1">100% normalized profiles</div>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between text-slate-400 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Verified Records</span>
-              <ShieldCheck size={18} className="text-teal-600" />
+          <div className="bg-white p-5 rounded-xl border border-saas-border shadow-xs">
+            <div className="flex items-center justify-between text-saas-secondary mb-2">
+              <span className="text-xs font-medium uppercase tracking-wider">Verified Audits</span>
+              <ShieldCheck size={16} className="text-emerald-600" />
             </div>
-            <p className="text-3xl font-extrabold text-teal-600 font-mono">{kpis.verifiedCompanies}</p>
-            <p className="text-[11px] text-slate-500 font-mono mt-1">{kpis.verificationRate}% Verification Ratio</p>
+            <div className="text-2xl font-bold text-saas-primary font-mono">{kpis.verifiedCompanies}</div>
+            <div className="text-[11px] text-saas-secondary mt-1">
+              {kpis.verificationRate}% audited verification rate
+            </div>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between text-slate-400 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Industry Verticals</span>
-              <Layers size={18} className="text-indigo-600" />
+          <div className="bg-white p-5 rounded-xl border border-saas-border shadow-xs">
+            <div className="flex items-center justify-between text-saas-secondary mb-2">
+              <span className="text-xs font-medium uppercase tracking-wider">Geographic Hubs</span>
+              <Globe size={16} className="text-blue-600" />
             </div>
-            <p className="text-3xl font-extrabold text-indigo-600 font-mono">{categoryDistribution.length}</p>
-            <p className="text-[11px] text-slate-500 font-mono mt-1">Full Value Chain</p>
+            <div className="text-2xl font-bold text-saas-primary font-mono">{countryData.length}</div>
+            <div className="text-[11px] text-saas-secondary mt-1">India, Taiwan, US, JP, EU</div>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between text-slate-400 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Global Corridors</span>
-              <Globe size={18} className="text-purple-600" />
+          <div className="bg-white p-5 rounded-xl border border-saas-border shadow-xs">
+            <div className="flex items-center justify-between text-saas-secondary mb-2">
+              <span className="text-xs font-medium uppercase tracking-wider">Ecosystem Verticals</span>
+              <Layers size={16} className="text-indigo-600" />
             </div>
-            <p className="text-3xl font-extrabold text-purple-600 font-mono">{countryDistribution.length}</p>
-            <p className="text-[11px] text-slate-500 font-mono mt-1">Countries Represented</p>
+            <div className="text-2xl font-bold text-saas-primary font-mono">{categoryData.length}</div>
+            <div className="text-[11px] text-saas-secondary mt-1">Foundry, IC, OSAT, PCB, EMS</div>
           </div>
         </div>
 
-        {/* Charts Row 1: Categories & Geographical Distribution */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Category Distribution Bar Chart */}
-          <div className="lg:col-span-7 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center justify-between">
-              <span>Suppliers by Industry Segment</span>
-              <span className="text-[11px] font-mono text-slate-400 font-normal">Real Database Count</span>
-            </h3>
+        {/* 2 CHARTS ROW */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* CATEGORY DISTRIBUTION */}
+          <div className="bg-white p-6 rounded-xl border border-saas-border shadow-xs">
+            <h2 className="text-xs font-bold text-saas-primary uppercase tracking-wide mb-1">
+              Ecosystem Entities by Vertical
+            </h2>
+            <p className="text-xs text-saas-secondary mb-4">
+              Normalized distribution across the 6 semiconductor supply chain domains
+            </p>
 
-            <div className="h-64 w-full">
+            <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={categoryDistribution} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="industry" tick={{ fontSize: 10 }} interval={0} angle={-15} textAnchor="end" />
-                  <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                <BarChart data={categoryData} layout="vertical" margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                  <XAxis type="number" tick={{ fontSize: 11 }} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={120} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', color: '#fff', fontSize: '12px' }}
+                    contentStyle={{
+                      backgroundColor: '#172033',
+                      borderColor: '#334155',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontSize: '11px',
+                    }}
                   />
-                  <Bar dataKey="companyCount" fill="#0d9488" radius={[4, 4, 0, 0]} name="Companies" />
+                  <Bar dataKey="count" fill="#0F8B8D" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Verification Ratio Pie Chart */}
-          <div className="lg:col-span-5 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-            <h3 className="text-sm font-bold text-slate-900">
-              Data Integrity & Verification Status
-            </h3>
+          {/* GEOGRAPHIC CORRIDOR CONCENTRATION */}
+          <div className="bg-white p-6 rounded-xl border border-saas-border shadow-xs">
+            <h2 className="text-xs font-bold text-saas-primary uppercase tracking-wide mb-1">
+              Geographic Concentration
+            </h2>
+            <p className="text-xs text-saas-secondary mb-4">
+              Breakdown of manufacturing facilities by country code
+            </p>
 
-            <div className="h-48 w-full flex items-center justify-center">
+            <div className="h-64 flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={verificationPieData}
+                    data={countryData}
+                    dataKey="count"
+                    nameKey="country"
                     cx="50%"
                     cy="50%"
-                    innerRadius={50}
                     outerRadius={80}
-                    paddingAngle={3}
-                    dataKey="value"
+                    label={(entry) => `${entry.country} (${entry.count})`}
                   >
-                    {verificationPieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    {countryData.map((_: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderRadius: '8px', color: '#fff', fontSize: '11px' }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#172033',
+                      borderColor: '#334155',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontSize: '11px',
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 text-center text-xs pt-2 border-t border-slate-100 font-mono">
-              <div>
-                <span className="text-[10px] text-teal-600 block">Verified</span>
-                <span className="font-bold text-slate-800">{kpis.verifiedCompanies}</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-amber-600 block">Claimed</span>
-                <span className="font-bold text-slate-800">{kpis.claimedCompanies}</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-500 block">Unverified</span>
-                <span className="font-bold text-slate-800">{kpis.unverifiedCompanies}</span>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Organization Plan Quota Usage */}
+        {/* SUBSCRIPTION & USAGE QUOTAS WIDGET */}
         {usage && (
-          <div className="bg-navy-900 text-white rounded-xl p-6 shadow-md border border-slate-800">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-6">
+          <div className="bg-white p-6 rounded-xl border border-saas-border shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-saas-border">
               <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base font-bold text-white">Monthly Subscription Quota Usage</h3>
-                  <PlanBadge plan={usage.planCode} />
-                </div>
-                <p className="text-xs text-slate-400 mt-1 font-mono">
-                  Billing Period: {usage.currentMonth.yearMonth} • Tier: {usage.planName}
+                <h2 className="text-xs font-bold text-saas-primary uppercase tracking-wide">
+                  Account Tier & API Quota Telemetry
+                </h2>
+                <p className="text-xs text-saas-secondary">
+                  Current monthly search, export, and saved supplier consumption
                 </p>
               </div>
+              <PlanBadge plan={usage.plan} />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs">
-              {/* Searches Quota */}
-              <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-2">
-                <div className="flex justify-between font-mono">
-                  <span className="text-slate-300">Searches Used</span>
-                  <span className="font-bold text-teal-400">
-                    {usage.currentMonth.searchesUsed} / {usage.limits.maxMonthlySearches}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-semibold text-saas-primary">Monthly Searches</span>
+                  <span className="font-mono text-saas-secondary">
+                    {usage.searches.used} / {usage.searches.limit}
                   </span>
                 </div>
-                <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+                <div className="w-full bg-slate-100 rounded-full h-2">
                   <div
-                    className="bg-teal-500 h-2 rounded-full"
-                    style={{
-                      width: `${Math.min(100, (usage.currentMonth.searchesUsed / usage.limits.maxMonthlySearches) * 100)}%`,
-                    }}
+                    className="bg-saas-accent h-2 rounded-full"
+                    style={{ width: `${Math.min(100, (usage.searches.used / usage.searches.limit) * 100)}%` }}
                   />
                 </div>
               </div>
 
-              {/* Exports Quota */}
-              <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-2">
-                <div className="flex justify-between font-mono">
-                  <span className="text-slate-300">Exports Used</span>
-                  <span className="font-bold text-teal-400">
-                    {usage.currentMonth.exportsUsed} / {usage.limits.maxMonthlyExports}
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-semibold text-saas-primary">Saved Pipeline Suppliers</span>
+                  <span className="font-mono text-saas-secondary">
+                    {usage.savedCompanies.used} / {usage.savedCompanies.limit}
                   </span>
                 </div>
-                <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+                <div className="w-full bg-slate-100 rounded-full h-2">
                   <div
-                    className="bg-teal-500 h-2 rounded-full"
-                    style={{
-                      width: `${Math.min(100, (usage.currentMonth.exportsUsed / usage.limits.maxMonthlyExports) * 100)}%`,
-                    }}
+                    className="bg-indigo-600 h-2 rounded-full"
+                    style={{ width: `${Math.min(100, (usage.savedCompanies.used / usage.savedCompanies.limit) * 100)}%` }}
                   />
                 </div>
               </div>
 
-              {/* Saved Companies Quota */}
-              <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-2">
-                <div className="flex justify-between font-mono">
-                  <span className="text-slate-300">Saved Companies</span>
-                  <span className="font-bold text-teal-400">
-                    {usage.currentMonth.savedCompaniesCount} / {usage.limits.maxSavedCompanies}
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-semibold text-saas-primary">Dossier Data Exports</span>
+                  <span className="font-mono text-saas-secondary">
+                    {usage.exports.used} / {usage.exports.limit}
                   </span>
                 </div>
-                <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+                <div className="w-full bg-slate-100 rounded-full h-2">
                   <div
-                    className="bg-teal-500 h-2 rounded-full"
-                    style={{
-                      width: `${Math.min(100, (usage.currentMonth.savedCompaniesCount / usage.limits.maxSavedCompanies) * 100)}%`,
-                    }}
+                    className="bg-emerald-600 h-2 rounded-full"
+                    style={{ width: `${Math.min(100, (usage.exports.used / usage.exports.limit) * 100)}%` }}
                   />
                 </div>
               </div>
             </div>
           </div>
         )}
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </AppLayout>
   );
 };

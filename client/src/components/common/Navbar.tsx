@@ -30,10 +30,10 @@ export const Navbar: React.FC = () => {
   };
 
   const navLinks = [
-    { label: 'Intelligence Console', path: '/app/discovery', icon: Search },
-    { label: 'Matching Matrix', path: '/app/matching', icon: Sparkles },
-    { label: 'Sourcing Pipeline', path: '/app/workspace', icon: Bookmark },
-    { label: 'Search Queries', path: '/app/searches', icon: History },
+    { label: 'Overview', path: '/app/overview', icon: Cpu },
+    { label: 'Discovery', path: '/app/discovery', icon: Search },
+    { label: 'Matching', path: '/app/matching', icon: Sparkles },
+    { label: 'Pipeline', path: '/app/workspace', icon: Bookmark },
     { label: 'Analytics', path: '/app/analytics', icon: BarChart3 },
   ];
 
@@ -44,25 +44,25 @@ export const Navbar: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="sticky top-0 z-40 bg-navy-950/95 backdrop-blur-md border-b border-slate-800 text-white shadow-xl">
+    <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-saas-border text-saas-primary shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Platform Name */}
           <div className="flex items-center gap-8">
-            <Link to={isAuthenticated ? '/app/discovery' : '/'} className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-lg bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 group-hover:border-teal-400 group-hover:bg-teal-500/20 transition-all">
-                <Cpu size={20} className="text-teal-400" />
+            <Link to={isAuthenticated ? '/app/overview' : '/'} className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-lg bg-saas-accent text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Cpu size={18} />
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
-                  <span className="font-extrabold tracking-tight text-lg text-white group-hover:text-teal-300 transition-colors">
+                  <span className="font-extrabold tracking-tight text-base text-saas-primary group-hover:text-saas-accent transition-colors">
                     VIASET
                   </span>
-                  <span className="px-1.5 py-0.2 rounded bg-teal-500/10 text-teal-400 border border-teal-500/20 text-[9px] font-mono tracking-widest uppercase">
-                    SaaS Platform
+                  <span className="px-1.5 py-0.2 rounded bg-teal-50 text-teal-800 border border-teal-200 text-[9px] font-mono tracking-widest uppercase font-semibold">
+                    B2B SaaS
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-400 tracking-wider font-mono -mt-0.5">
+                <span className="text-[10px] text-saas-secondary tracking-wider font-mono -mt-0.5">
                   Supply-Chain Intelligence
                 </span>
               </div>
@@ -70,17 +70,17 @@ export const Navbar: React.FC = () => {
 
             {/* Public Links */}
             {!isAuthenticated && (
-              <div className="hidden lg:flex items-center space-x-6 text-xs font-medium text-slate-300">
-                <a href="#capabilities" className="hover:text-teal-300 transition-colors">
+              <div className="hidden lg:flex items-center space-x-6 text-xs font-semibold text-saas-secondary">
+                <a href="#capabilities" className="hover:text-saas-primary transition-colors">
                   Capabilities
                 </a>
-                <a href="#matcher" className="hover:text-teal-300 transition-colors">
-                  Matching Engine
+                <a href="#taxonomy" className="hover:text-saas-primary transition-colors">
+                  Taxonomy
                 </a>
-                <a href="#matrix" className="hover:text-teal-300 transition-colors">
-                  Intelligence Matrix
+                <a href="#matcher" className="hover:text-saas-primary transition-colors">
+                  Matching Matrix
                 </a>
-                <a href="#pricing" className="hover:text-teal-300 transition-colors">
+                <a href="#pricing" className="hover:text-saas-primary transition-colors">
                   Enterprise Plans
                 </a>
               </div>
@@ -96,13 +96,13 @@ export const Navbar: React.FC = () => {
                     <Link
                       key={link.path}
                       to={link.path}
-                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                         active
-                          ? 'bg-teal-500/15 text-teal-300 border border-teal-500/30'
-                          : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                          ? 'bg-teal-50 text-teal-800 border border-teal-200'
+                          : 'text-saas-secondary hover:text-saas-primary hover:bg-slate-100'
                       }`}
                     >
-                      <Icon size={14} className={active ? 'text-teal-400' : 'text-slate-400'} />
+                      <Icon size={14} className={active ? 'text-teal-700' : 'text-saas-secondary'} />
                       <span>{link.label}</span>
                     </Link>
                   );
@@ -117,94 +117,106 @@ export const Navbar: React.FC = () => {
               <div className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-600 transition-colors text-left"
+                  className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-saas-bg border border-saas-border hover:bg-slate-100 transition-colors text-left cursor-pointer"
                 >
-                  <div className="w-6 h-6 rounded-md bg-teal-500/20 text-teal-300 flex items-center justify-center font-bold text-xs font-mono">
-                    {user.fullName.charAt(0).toUpperCase()}
+                  <div className="w-7 h-7 rounded-full bg-saas-accent text-white flex items-center justify-center font-bold text-xs uppercase shadow-xs">
+                    {user.fullName.charAt(0)}
                   </div>
                   <div className="hidden sm:flex flex-col">
-                    <span className="text-xs font-bold text-slate-200 leading-tight">
+                    <span className="text-xs font-bold text-saas-primary leading-tight">
                       {user.fullName}
                     </span>
-                    <span className="text-[10px] text-slate-400 leading-tight truncate max-w-[120px] font-mono">
-                      {user.organization?.name || 'Organization'}
+                    <span className="text-[10px] text-saas-secondary font-mono -mt-0.5">
+                      {user.organization?.name || user.role}
                     </span>
                   </div>
-                  {user.organization?.planCode && (
-                    <div className="hidden lg:block ml-1">
-                      <PlanBadge plan={user.organization.planCode} />
-                    </div>
-                  )}
-                  <ChevronDown size={14} className="text-slate-400 ml-1" />
+                  <ChevronDown size={14} className="text-saas-secondary" />
                 </button>
 
-                {/* Dropdown Menu */}
                 {dropdownOpen && (
-                  <div
-                    className="absolute right-0 mt-2 w-64 rounded-xl bg-slate-900 border border-slate-800 shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2"
-                    onMouseLeave={() => setDropdownOpen(false)}
-                  >
-                    <div className="px-4 py-3 border-b border-slate-800">
-                      <p className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Active Profile</p>
-                      <p className="text-sm font-bold text-white truncate">{user.fullName}</p>
-                      <p className="text-xs text-slate-400 font-mono truncate">{user.email}</p>
+                  <div className="absolute right-0 mt-2 w-64 rounded-xl bg-white border border-saas-border shadow-xl py-2 z-50 animate-in fade-in">
+                    <div className="px-4 py-3 border-b border-saas-border">
+                      <div className="text-xs font-bold text-saas-primary">{user.fullName}</div>
+                      <div className="text-[11px] text-saas-secondary font-mono truncate">{user.email}</div>
                       <div className="mt-2 flex items-center gap-2">
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-teal-400 font-mono border border-slate-700">
+                        <PlanBadge plan={user.organization?.planCode || 'BASIC'} />
+                        <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
                           {user.role}
                         </span>
-                        {user.organization?.planCode && (
-                          <PlanBadge plan={user.organization.planCode} />
-                        )}
                       </div>
                     </div>
 
-                    <div className="py-1">
+                    <div className="py-1 text-xs">
+                      <Link
+                        to="/app/overview"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-saas-primary hover:bg-slate-50"
+                      >
+                        <Cpu size={14} className="text-saas-accent" />
+                        <span>Workspace Overview</span>
+                      </Link>
+                      <Link
+                        to="/app/discovery"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-saas-primary hover:bg-slate-50"
+                      >
+                        <Search size={14} className="text-saas-accent" />
+                        <span>Company Discovery</span>
+                      </Link>
+                      <Link
+                        to="/app/workspace"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-saas-primary hover:bg-slate-50"
+                      >
+                        <Bookmark size={14} className="text-saas-accent" />
+                        <span>Sourcing Pipeline</span>
+                      </Link>
                       <Link
                         to="/app/subscription"
                         onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-300 hover:bg-slate-800/80 hover:text-white"
+                        className="flex items-center gap-2 px-4 py-2 text-saas-primary hover:bg-slate-50"
                       >
-                        <BarChart3 size={15} className="text-slate-400" />
-                        <span>SaaS Quotas & Billing</span>
+                        <Building2 size={14} className="text-saas-accent" />
+                        <span>Subscription Quotas</span>
                       </Link>
                       {user.role === 'ADMIN' && (
                         <Link
                           to="/admin"
                           onClick={() => setDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-xs text-amber-300 hover:bg-slate-800/80"
+                          className="flex items-center gap-2 px-4 py-2 text-amber-700 hover:bg-amber-50 font-semibold"
                         >
-                          <Shield size={15} className="text-amber-400" />
-                          <span>Admin Control Center</span>
+                          <Shield size={14} />
+                          <span>Admin Portal</span>
                         </Link>
                       )}
                     </div>
 
-                    <div className="border-t border-slate-800 pt-1">
+                    <div className="pt-1 border-t border-saas-border">
                       <button
                         onClick={handleLogout}
-                        className="flex items-center gap-2.5 w-full text-left px-4 py-2 text-xs text-red-400 hover:bg-red-500/10 transition-colors"
+                        className="w-full flex items-center gap-2 px-4 py-2 text-xs text-red-600 hover:bg-red-50 text-left font-semibold cursor-pointer"
                       >
-                        <LogOut size={15} />
-                        <span>Sign Out</span>
+                        <LogOut size={14} />
+                        <span>Sign Out Session</span>
                       </button>
                     </div>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Link
                   to="/login"
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white transition-colors"
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-saas-secondary hover:text-saas-primary hover:bg-slate-100 transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
-                  to="/app/discovery"
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold transition-all shadow-md shadow-teal-600/30"
+                  to="/register"
+                  className="px-3.5 py-1.5 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-colors"
                 >
-                  <span>Launch Platform</span>
-                  <ArrowRight size={14} />
+                  <span>Launch Console</span>
+                  <ArrowRight size={13} />
                 </Link>
               </div>
             )}

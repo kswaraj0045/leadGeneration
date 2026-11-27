@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { History, Search, Play, Trash2, Calendar, RefreshCw } from 'lucide-react';
+import { History, Search, Play, Trash2, Calendar, RefreshCw, Bookmark, ArrowRight } from 'lucide-react';
 import api from '../services/api';
 import { SavedSearch } from '../types';
-import { Navbar } from '../components/common/Navbar';
-import { Footer } from '../components/common/Footer';
+import { AppLayout } from '../components/layout/AppLayout';
 
 export const SavedSearchesPage: React.FC = () => {
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
@@ -54,107 +53,139 @@ export const SavedSearchesPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Saved Searches & Recent Activity
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Re-run complex multi-facet discovery queries with a single click and review recent organization query patterns.
-          </p>
+    <AppLayout>
+      <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-saas-border pb-5">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-semibold">
+                Query Management
+              </span>
+              <span className="text-xs font-mono text-saas-secondary">• {savedSearches.length} Saved Scans</span>
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-saas-primary">
+              Saved Queries & Search History
+            </h1>
+            <p className="text-xs text-saas-secondary mt-0.5">
+              Re-execute complex multi-facet parametric searches and review historical supply-chain audit logs.
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Saved Queries */}
-          <div className="lg:col-span-7 space-y-4">
-            <h2 className="text-base font-bold text-slate-900 pb-2 border-b border-slate-200">
-              Named Saved Searches
+        {/* 2-COLUMN LAYOUT: SAVED SEARCHES & RECENT AUDIT LOGS */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* SAVED SEARCHES */}
+          <div className="space-y-4">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-saas-primary flex items-center gap-2">
+              <Bookmark size={14} className="text-saas-accent" />
+              Saved Parameter Queries ({savedSearches.length})
             </h2>
 
             {loading ? (
-              <div className="py-10 text-center">
-                <RefreshCw size={20} className="animate-spin mx-auto text-teal-600 mb-2" />
-                <p className="text-xs text-slate-500">Loading saved queries...</p>
+              <div className="bg-white rounded-xl border border-saas-border p-8 text-center">
+                <RefreshCw size={20} className="animate-spin text-saas-accent mx-auto mb-2" />
+                <p className="text-xs text-saas-secondary">Loading saved queries...</p>
               </div>
             ) : savedSearches.length > 0 ? (
               <div className="space-y-3">
-                {savedSearches.map((search) => (
-                  <div
-                    key={search.id}
-                    className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between"
-                  >
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900">{search.name}</h4>
-                      <p className="text-xs text-slate-500 font-mono mt-0.5">
-                        Filters: {JSON.stringify((search as any).queryParams)}
-                      </p>
-                      <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1 mt-1">
-                        <Calendar size={11} />
-                        Saved on {new Date(search.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
+                {savedSearches.map((s) => {
+                  const qParams = s.queryParamsJson ? JSON.parse(s.queryParamsJson) : (s as any).queryParams || {};
+                  return (
+                    <div
+                      key={s.id}
+                      className="bg-white rounded-xl border border-saas-border p-4 shadow-xs hover:border-slate-300 transition-all flex items-center justify-between"
+                    >
+                      <div className="space-y-1">
+                        <h3 className="text-sm font-bold text-saas-primary">{s.name}</h3>
+                        <div className="flex flex-wrap gap-1 text-[10px] font-mono text-saas-secondary">
+                          {qParams.q && <span className="bg-slate-100 px-1.5 py-0.5 rounded">q: {qParams.q}</span>}
+                          {qParams.category && qParams.category !== 'all' && (
+                            <span className="bg-teal-50 text-teal-800 px-1.5 py-0.5 rounded border border-teal-200">
+                              cat: {qParams.category}
+                            </span>
+                          )}
+                          {qParams.country && qParams.country !== 'all' && (
+                            <span className="bg-indigo-50 text-indigo-800 px-1.5 py-0.5 rounded border border-indigo-200">
+                              country: {qParams.country}
+                            </span>
+                          )}
+                        </div>
+                      </div>
 
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => rerunSearch((search as any).queryParams)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold shadow-sm transition-all"
-                      >
-                        <Play size={12} />
-                        <span>Run Search</span>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(search.id)}
-                        className="p-1.5 rounded-lg border border-slate-200 text-red-500 hover:bg-red-50 transition-colors"
-                        title="Delete search"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => rerunSearch(qParams)}
+                          className="px-3 py-1.5 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Play size={12} fill="currentColor" />
+                          <span>Execute</span>
+                        </button>
+                        <button
+                          onClick={() => handleDelete(s.id)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                          title="Delete query"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
-                <Search size={28} className="text-slate-400 mx-auto mb-2" />
-                <p className="text-xs text-slate-600 font-medium">No saved searches yet.</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  Save your filters on the Discovery page using the "Save Search Query" button.
+              <div className="bg-white rounded-xl border border-saas-border p-8 text-center">
+                <p className="text-xs text-saas-secondary">
+                  No saved queries yet. Use the "Save Query" button on the Company Discovery page to store frequent searches.
                 </p>
               </div>
             )}
           </div>
 
-          {/* Search History */}
-          <div className="lg:col-span-5 space-y-4">
-            <h2 className="text-base font-bold text-slate-900 pb-2 border-b border-slate-200">
-              Recent Discovery Log
+          {/* AUDIT LOG / RECENT HISTORY */}
+          <div className="space-y-4">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-saas-primary flex items-center gap-2">
+              <History size={14} className="text-indigo-600" />
+              Recent Execution Telemetry ({history.length})
             </h2>
 
-            {history.length > 0 ? (
-              <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 text-xs">
-                {history.map((h) => (
-                  <div key={h.id} className="p-3">
-                    <p className="font-semibold text-slate-800">{h.queryText || 'Ecosystem Filter'}</p>
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono mt-1">
-                      <span>{h.user?.fullName}</span>
-                      <span>{new Date(h.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            {loading ? (
+              <div className="bg-white rounded-xl border border-saas-border p-8 text-center">
+                <RefreshCw size={20} className="animate-spin text-saas-accent mx-auto mb-2" />
+                <p className="text-xs text-saas-secondary">Loading search logs...</p>
+              </div>
+            ) : history.length > 0 ? (
+              <div className="bg-white rounded-xl border border-saas-border divide-y divide-saas-border shadow-xs overflow-hidden">
+                {history.slice(0, 10).map((h) => (
+                  <div key={h.id} className="p-3.5 flex items-center justify-between text-xs hover:bg-slate-50">
+                    <div>
+                      <div className="font-semibold text-saas-primary">
+                        {h.searchQuery || 'Parametric Facet Query'}
+                      </div>
+                      <div className="text-[10px] text-saas-secondary font-mono">
+                        {new Date(h.createdAt).toLocaleString()} • {h.resultsCount} hits returned
+                      </div>
                     </div>
+
+                    <button
+                      onClick={() =>
+                        rerunSearch(typeof h.filters === 'string' ? JSON.parse(h.filters) : h.filters || {})
+                      }
+                      className="text-xs text-saas-accent hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                    >
+                      Re-run <ArrowRight size={12} />
+                    </button>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-xs text-slate-400">
-                No recent activity logged.
+              <div className="bg-white rounded-xl border border-saas-border p-8 text-center">
+                <p className="text-xs text-saas-secondary">No execution telemetry logged yet.</p>
               </div>
             )}
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </AppLayout>
   );
 };

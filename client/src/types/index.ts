@@ -119,7 +119,15 @@ export interface Company {
   updatedAt: string;
 }
 
-export type PipelineStage = 'EVALUATING' | 'CONTACTED' | 'PARTNER' | 'SUPPLIER' | 'ARCHIVED';
+export type PipelineStage =
+  | 'IDENTIFIED'
+  | 'EVALUATING'
+  | 'CONTACTED'
+  | 'PARTNER'
+  | 'SUPPLIER'
+  | 'APPROVED'
+  | 'DISQUALIFIED'
+  | 'ARCHIVED';
 
 export interface SavedCompany {
   id: string;

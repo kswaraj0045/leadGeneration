@@ -9,16 +9,16 @@ interface VerificationBadgeProps {
 
 export const VerificationBadge: React.FC<VerificationBadgeProps> = ({ status, size = 'md' }) => {
   const isSm = size === 'sm';
-  const padding = isSm ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs';
-  const iconSize = isSm ? 12 : 14;
+  const padding = isSm ? 'px-2 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs';
+  const iconSize = isSm ? 12 : 13;
 
   if (status === 'VERIFIED') {
     return (
       <span
-        className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-teal-50 text-teal-700 border border-teal-200/80 ${padding}`}
-        title="Verified Enterprise Record"
+        className={`inline-flex items-center gap-1.5 font-medium rounded-md bg-[#ECFDF3] text-[#027A48] border border-[#A6F4C5] ${padding}`}
+        title="Verified Enterprise Facility"
       >
-        <ShieldCheck size={iconSize} className="text-teal-600" />
+        <ShieldCheck size={iconSize} className="text-[#12B76A]" />
         <span>Verified</span>
       </span>
     );
@@ -27,10 +27,10 @@ export const VerificationBadge: React.FC<VerificationBadgeProps> = ({ status, si
   if (status === 'CLAIMED') {
     return (
       <span
-        className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-amber-50 text-amber-700 border border-amber-200 ${padding}`}
-        title="Claimed by company representative, audit pending"
+        className={`inline-flex items-center gap-1.5 font-medium rounded-md bg-[#FFFAEB] text-[#B54708] border border-[#FEDF89] ${padding}`}
+        title="Claimed by company, audit pending"
       >
-        <Clock size={iconSize} className="text-amber-600" />
+        <Clock size={iconSize} className="text-[#F79009]" />
         <span>Claimed</span>
       </span>
     );
@@ -38,40 +38,43 @@ export const VerificationBadge: React.FC<VerificationBadgeProps> = ({ status, si
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 font-medium rounded-full bg-slate-100 text-slate-600 border border-slate-200 ${padding}`}
+      className={`inline-flex items-center gap-1.5 font-medium rounded-md bg-[#F2F4F7] text-[#475467] border border-[#EAECF0] ${padding}`}
       title="Unverified Directory Submission"
     >
-      <AlertCircle size={iconSize} className="text-slate-400" />
+      <AlertCircle size={iconSize} className="text-[#98A2B3]" />
       <span>Unverified</span>
     </span>
   );
 };
 
 export const PlanBadge: React.FC<{ plan: SubscriptionPlanCode }> = ({ plan }) => {
-  const colors = {
-    BASIC: 'bg-slate-100 text-slate-700 border-slate-200',
-    PRO: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    ENTERPRISE: 'bg-teal-50 text-teal-800 border-teal-300 font-semibold',
+  const styles: Record<SubscriptionPlanCode, string> = {
+    BASIC: 'bg-[#F2F4F7] text-[#344054] border-[#EAECF0]',
+    PRO: 'bg-[#EFF8FF] text-[#175CD3] border-[#B2DDFF]',
+    ENTERPRISE: 'bg-saas-accent-subtle text-saas-accent border-saas-accent-border font-semibold',
   };
 
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 text-[11px] uppercase tracking-wider rounded border ${colors[plan] || colors.BASIC}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 text-[11px] font-mono uppercase tracking-wider rounded border ${styles[plan] || styles.BASIC}`}>
       {plan}
     </span>
   );
 };
 
-export const StageBadge: React.FC<{ stage: string }> = ({ stage }) => {
-  const colors: Record<string, string> = {
-    EVALUATING: 'bg-blue-50 text-blue-700 border-blue-200',
-    CONTACTED: 'bg-amber-50 text-amber-700 border-amber-200',
-    PARTNER: 'bg-teal-50 text-teal-700 border-teal-200 font-medium',
-    SUPPLIER: 'bg-purple-50 text-purple-700 border-purple-200 font-medium',
-    ARCHIVED: 'bg-slate-100 text-slate-600 border-slate-200',
+export const StageBadge: React.FC<{ stage: string; size?: 'sm' | 'md' }> = ({ stage }) => {
+  const styles: Record<string, string> = {
+    IDENTIFIED: 'bg-slate-100 text-slate-700 border-slate-200',
+    EVALUATING: 'bg-[#EFF8FF] text-[#175CD3] border-[#B2DDFF]',
+    CONTACTED: 'bg-[#FFFAEB] text-[#B54708] border-[#FEDF89]',
+    PARTNER: 'bg-[#ECFDF3] text-[#027A48] border-[#A6F4C5] font-semibold',
+    SUPPLIER: 'bg-[#F9F5FF] text-[#6941C6] border-[#E9D7FE] font-semibold',
+    APPROVED: 'bg-[#ECFDF3] text-[#027A48] border-[#A6F4C5] font-semibold',
+    DISQUALIFIED: 'bg-red-50 text-red-700 border-red-200',
+    ARCHIVED: 'bg-[#F2F4F7] text-[#475467] border-[#EAECF0]',
   };
 
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 text-xs rounded border ${colors[stage] || colors.EVALUATING}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 text-[11px] font-medium rounded border ${styles[stage] || styles.EVALUATING}`}>
       {stage}
     </span>
   );

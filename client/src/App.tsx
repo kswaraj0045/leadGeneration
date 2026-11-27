@@ -3,10 +3,14 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { OverviewPage } from './pages/OverviewPage';
 import { DiscoveryPage } from './pages/DiscoveryPage';
 import { MatchingPage } from './pages/MatchingPage';
 import { SavedWorkspacePage } from './pages/SavedWorkspacePage';
 import { SavedSearchesPage } from './pages/SavedSearchesPage';
+import { OpportunitiesPage } from './pages/OpportunitiesPage';
+import { IndustryExplorerPage } from './pages/IndustryExplorerPage';
+import { GeographicInsightsPage } from './pages/GeographicInsightsPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { AdminPage } from './pages/AdminPage';
 import { SubscriptionPage } from './pages/SubscriptionPage';
@@ -23,7 +27,7 @@ const AdminRoute: React.FC<{ children: React.ReactElement }> = ({ children }) =>
   const { user, isAuthenticated, loading } = useAuth();
   if (loading) return null;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (user?.role !== 'ADMIN') return <Navigate to="/app/discovery" replace />;
+  if (user?.role !== 'ADMIN') return <Navigate to="/app/overview" replace />;
   return children;
 };
 
@@ -35,7 +39,18 @@ export const App: React.FC = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      {/* Authenticated Application */}
+      {/* Redirect /app to /app/overview */}
+      <Route path="/app" element={<Navigate to="/app/overview" replace />} />
+
+      {/* Authenticated Workspace */}
+      <Route
+        path="/app/overview"
+        element={
+          <ProtectedRoute>
+            <OverviewPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/app/discovery"
         element={
@@ -69,6 +84,32 @@ export const App: React.FC = () => {
         }
       />
       <Route
+        path="/app/opportunities"
+        element={
+          <ProtectedRoute>
+            <OpportunitiesPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Authenticated Intelligence */}
+      <Route
+        path="/app/industries"
+        element={
+          <ProtectedRoute>
+            <IndustryExplorerPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/geographic"
+        element={
+          <ProtectedRoute>
+            <GeographicInsightsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/app/analytics"
         element={
           <ProtectedRoute>
@@ -76,6 +117,8 @@ export const App: React.FC = () => {
           </ProtectedRoute>
         }
       />
+
+      {/* Authenticated Administration */}
       <Route
         path="/app/subscription"
         element={
@@ -84,8 +127,6 @@ export const App: React.FC = () => {
           </ProtectedRoute>
         }
       />
-
-      {/* Admin Portal */}
       <Route
         path="/admin"
         element={

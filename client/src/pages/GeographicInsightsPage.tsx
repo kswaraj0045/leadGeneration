@@ -117,15 +117,15 @@ export const GeographicInsightsPage: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[11px] font-mono uppercase tracking-wider text-saas-accent bg-teal-50 border border-teal-200 px-2 py-0.5 rounded font-semibold">
-                Geographic Intelligence
+                Locations & Hubs
               </span>
-              <span className="text-xs text-saas-secondary">5 Key Global Corridors</span>
+              <span className="text-xs text-saas-secondary">5 Key Global Regions</span>
             </div>
             <h1 className="text-2xl font-bold text-saas-primary tracking-tight">
-              Semiconductor Manufacturing Corridors & Clusters
+              Locations & Manufacturing Hubs
             </h1>
             <p className="text-sm text-saas-secondary mt-1">
-              Analyze localized production hubs, regulatory incentives, and regional supplier density.
+              Explore localized production clusters, key hubs, and company density by country.
             </p>
           </div>
 
@@ -134,7 +134,7 @@ export const GeographicInsightsPage: React.FC = () => {
             className="px-4 py-2 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-semibold shadow-xs flex items-center gap-2 transition-colors shrink-0"
           >
             <Filter size={14} />
-            Filter {active.name.split(' ')[0]} ({active.entityCount})
+            View {active.name.split(' ')[0]} Companies ({active.entityCount})
           </Link>
         </div>
 
@@ -155,7 +155,7 @@ export const GeographicInsightsPage: React.FC = () => {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-2xl">{c.flag}</span>
-                    <span className="text-xs font-mono font-bold text-saas-accent">{c.entityCount} Nodes</span>
+                    <span className="text-xs font-mono font-bold text-saas-accent">{c.entityCount} Companies</span>
                   </div>
                   <h3 className="text-xs font-bold text-saas-primary leading-tight mb-1">
                     {c.name}

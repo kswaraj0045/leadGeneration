@@ -72,7 +72,7 @@ export const SavedWorkspacePage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Remove company from your supplier pipeline?')) return;
+    if (!window.confirm('Remove company from your saved list?')) return;
     try {
       await api.delete(`/saved/${id}`);
       fetchSaved();
@@ -94,7 +94,7 @@ export const SavedWorkspacePage: React.FC = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `sourcing_pipeline_${format.toLowerCase()}.${format === 'EXCEL' ? 'xlsx' : 'csv'}`);
+      link.setAttribute('download', `saved_companies_${format.toLowerCase()}.${format === 'EXCEL' ? 'xlsx' : 'csv'}`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -106,11 +106,11 @@ export const SavedWorkspacePage: React.FC = () => {
   };
 
   const stages: { label: string; value: string }[] = [
-    { label: 'All Pipeline Suppliers', value: 'ALL' },
+    { label: 'All Companies', value: 'ALL' },
     { label: 'Identified', value: 'IDENTIFIED' },
     { label: 'Contacted', value: 'CONTACTED' },
     { label: 'Evaluating', value: 'EVALUATING' },
-    { label: 'Approved', value: 'APPROVED' },
+    { label: 'Approved Partners', value: 'APPROVED' },
     { label: 'Disqualified', value: 'DISQUALIFIED' },
   ];
 
@@ -122,15 +122,15 @@ export const SavedWorkspacePage: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-semibold">
-                Vendor Management System
+                Saved Workspace
               </span>
-              <span className="text-xs font-mono text-saas-secondary">• {savedList.length} Tracked Suppliers</span>
+              <span className="text-xs font-mono text-saas-secondary">• {savedList.length} Saved Companies</span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-saas-primary">
-              Supplier Sourcing Pipeline
+              Saved Companies
             </h1>
             <p className="text-xs text-saas-secondary mt-0.5">
-              Manage qualification status, internal engineering audit notes, and engagement workflows for shortlisted suppliers.
+              Organize and track companies your business is evaluating, contacting, or partnering with.
             </p>
           </div>
 
@@ -175,7 +175,7 @@ export const SavedWorkspacePage: React.FC = () => {
         {loading ? (
           <div className="bg-white rounded-xl border border-saas-border p-12 text-center">
             <RefreshCw size={24} className="animate-spin text-saas-accent mx-auto mb-2" />
-            <p className="text-xs text-saas-secondary">Loading pipeline suppliers...</p>
+            <p className="text-xs text-saas-secondary">Loading saved companies...</p>
           </div>
         ) : savedList.length > 0 ? (
           <div className="space-y-4">
@@ -227,12 +227,12 @@ export const SavedWorkspacePage: React.FC = () => {
                         className="px-2.5 py-1.5 rounded-lg border border-saas-border hover:bg-slate-50 text-xs font-semibold text-saas-primary flex items-center gap-1.5 transition-colors cursor-pointer"
                       >
                         <Edit3 size={13} className="text-saas-secondary" />
-                        <span>{isEditing ? 'Cancel Edit' : 'Edit Stage / Notes'}</span>
+                        <span>{isEditing ? 'Cancel Edit' : 'Edit Status / Notes'}</span>
                       </button>
                       <button
                         onClick={() => handleDelete(item.id)}
                         className="p-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                        title="Remove from pipeline"
+                        title="Remove from saved list"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -245,30 +245,30 @@ export const SavedWorkspacePage: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs font-semibold text-saas-primary mb-1">
-                            Pipeline Qualification Stage
+                            Company Status
                           </label>
                           <select
                             value={editStatus}
                             onChange={(e) => setEditStatus(e.target.value as PipelineStage)}
                             className="w-full px-3 py-1.5 text-xs bg-white border border-saas-border rounded-lg font-mono focus:outline-none focus:border-saas-accent"
                           >
-                            <option value="IDENTIFIED">IDENTIFIED (Initial Shortlist)</option>
-                            <option value="CONTACTED">CONTACTED (RFI / NDA Sent)</option>
-                            <option value="EVALUATING">EVALUATING (Audit / Spec Review)</option>
-                            <option value="APPROVED">APPROVED (Qualified Vendor List)</option>
-                            <option value="DISQUALIFIED">DISQUALIFIED (Does Not Meet Specs)</option>
+                            <option value="IDENTIFIED">IDENTIFIED (Shortlisted)</option>
+                            <option value="CONTACTED">CONTACTED (Initial Contact)</option>
+                            <option value="EVALUATING">EVALUATING (Under Evaluation)</option>
+                            <option value="APPROVED">APPROVED (Approved Partner)</option>
+                            <option value="DISQUALIFIED">DISQUALIFIED (Not a Fit)</option>
                           </select>
                         </div>
 
                         <div>
                           <label className="block text-xs font-semibold text-saas-primary mb-1">
-                            Internal Project Tags (Comma Separated)
+                            Project Tags (comma-separated)
                           </label>
                           <input
                             type="text"
                             value={editTags}
                             onChange={(e) => setEditTags(e.target.value)}
-                            placeholder="e.g. Project-Avionics, Q3-Delivery, Automotive-BMS"
+                            placeholder="e.g. PCB Assembly, Q3 Pilot, Priority"
                             className="w-full px-3 py-1.5 text-xs bg-white border border-saas-border rounded-lg focus:outline-none focus:border-saas-accent"
                           />
                         </div>
@@ -276,13 +276,13 @@ export const SavedWorkspacePage: React.FC = () => {
 
                       <div>
                         <label className="block text-xs font-semibold text-saas-primary mb-1">
-                          Engineering Audit & Negotiation Notes
+                          Internal Notes
                         </label>
                         <textarea
                           rows={3}
                           value={editNotes}
                           onChange={(e) => setEditNotes(e.target.value)}
-                          placeholder="Document NDA status, sample evaluations, lead time quotes, or yield test notes..."
+                          placeholder="Document meetings, capability feedback, quotes, or evaluation notes..."
                           className="w-full px-3 py-2 text-xs bg-white border border-saas-border rounded-lg focus:outline-none focus:border-saas-accent resize-none"
                         />
                       </div>
@@ -301,7 +301,7 @@ export const SavedWorkspacePage: React.FC = () => {
                           className="px-4 py-1.5 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-semibold shadow-xs flex items-center gap-1 cursor-pointer"
                         >
                           <Check size={13} />
-                          Save Pipeline State
+                          Save Changes
                         </button>
                       </div>
                     </div>
@@ -311,7 +311,7 @@ export const SavedWorkspacePage: React.FC = () => {
                       <div className="pt-3 border-t border-saas-border flex flex-col md:flex-row md:items-center justify-between text-xs gap-2">
                         {item.notes && (
                           <div className="text-slate-600 bg-slate-50 px-3 py-1.5 rounded border border-saas-border max-w-2xl font-mono text-[11px]">
-                            <strong>Audit Notes:</strong> {item.notes}
+                            <strong>Notes:</strong> {item.notes}
                           </div>
                         )}
                         {item.tags && (
@@ -337,15 +337,15 @@ export const SavedWorkspacePage: React.FC = () => {
         ) : (
           <div className="bg-white rounded-xl border border-saas-border p-12 text-center max-w-lg mx-auto">
             <Bookmark size={36} className="text-saas-accent mx-auto mb-3 opacity-50" />
-            <h3 className="text-base font-bold text-saas-primary">No Suppliers in Pipeline</h3>
+            <h3 className="text-base font-bold text-saas-primary">No Saved Companies</h3>
             <p className="text-xs text-saas-secondary mt-1 mb-4">
-              Explore the Registry Matrix or run the Matching Engine to shortlist and track qualified semiconductor partners.
+              Explore the company directory or use company matching to find and save relevant partners.
             </p>
             <a
               href="/app/discovery"
               className="inline-block px-4 py-2 rounded-lg bg-saas-accent text-white text-xs font-semibold hover:bg-teal-700 transition-colors"
             >
-              Discover Suppliers
+              Discover Companies
             </a>
           </div>
         )}

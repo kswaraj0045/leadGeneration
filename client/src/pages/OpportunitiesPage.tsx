@@ -145,7 +145,7 @@ export const OpportunitiesPage: React.FC = () => {
             className="px-4 py-2 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-semibold shadow-xs flex items-center gap-2 transition-colors shrink-0"
           >
             <Sparkles size={14} />
-            Match Sourcing Criteria
+            Company Matching
           </Link>
         </div>
 
@@ -153,7 +153,7 @@ export const OpportunitiesPage: React.FC = () => {
         <div className="flex flex-wrap items-center gap-2 bg-white p-3 rounded-xl border border-saas-border">
           <span className="text-xs font-semibold text-saas-secondary px-2 flex items-center gap-1.5">
             <Filter size={13} />
-            Filter by Domain:
+            Filter by Category:
           </span>
           {['all', 'Semiconductor Foundries', 'Electronics Manufacturing Services (EMS)', 'High-Density Interconnect PCBs', 'OSAT Packaging & Test', 'Passive & Active Components'].map((vert) => (
             <button
@@ -255,7 +255,7 @@ export const OpportunitiesPage: React.FC = () => {
                     to={`/app/matching`}
                     className="px-3 py-2 rounded-lg bg-saas-bg hover:bg-slate-200 text-saas-primary border border-saas-border text-xs font-semibold shadow-xs transition-colors"
                   >
-                    Match Suppliers
+                    Find Matches
                   </Link>
                 </div>
               </div>

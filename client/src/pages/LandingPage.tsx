@@ -157,7 +157,7 @@ export const LandingPage: React.FC = () => {
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="font-semibold text-saas-primary">Enterprise Supply-Chain Intelligence</span>
             <span className="text-slate-300">|</span>
-            <span className="text-saas-secondary font-mono">28 Audited Semiconductor Nodes</span>
+            <span className="text-saas-secondary font-mono">28 Verified Semiconductor Companies</span>
           </div>
         </div>
 
@@ -178,7 +178,7 @@ export const LandingPage: React.FC = () => {
               to={isAuthenticated ? '/app/overview' : '/app/discovery'}
               className="px-5 py-2.5 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-bold shadow-xs flex items-center gap-2 transition-all cursor-pointer"
             >
-              <span>Launch Sourcing Workspace</span>
+              <span>Open Dashboard</span>
               <ArrowRight size={14} />
             </Link>
 
@@ -187,7 +187,7 @@ export const LandingPage: React.FC = () => {
               className="px-5 py-2.5 rounded-lg bg-white hover:bg-slate-50 text-saas-primary border border-saas-border text-xs font-bold shadow-xs flex items-center gap-2 transition-all cursor-pointer"
             >
               <Search size={14} className="text-saas-secondary" />
-              <span>Browse 28+ Indexed Facilities</span>
+              <span>Browse 28+ Companies</span>
             </Link>
           </div>
 
@@ -238,7 +238,7 @@ export const LandingPage: React.FC = () => {
                 <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
                 <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
                 <span className="ml-3 text-[11px] font-mono text-saas-secondary font-medium">
-                  VIASET Intelligence Workspace — Parametric Registry Matrix (28 Audited Entities)
+                  VIASET Intelligence Workspace — Company Directory (28 Verified Companies)
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -266,10 +266,10 @@ export const LandingPage: React.FC = () => {
                       <span className="text-[10px] font-mono bg-teal-200/50 px-1 rounded">28</span>
                     </div>
                     <div className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-saas-secondary">
-                      Matching Engine
+                      Company Matching
                     </div>
                     <div className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-saas-secondary">
-                      Sourcing Pipeline
+                      Saved Companies
                     </div>
                     <div className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-saas-secondary">
                       Opportunities
@@ -283,8 +283,8 @@ export const LandingPage: React.FC = () => {
                   </span>
                   <div className="mt-2 space-y-1 text-xs text-saas-secondary font-semibold">
                     <div className="px-2.5 py-1.5 rounded-lg">Industry Explorer</div>
-                    <div className="px-2.5 py-1.5 rounded-lg">Geographic Insights</div>
-                    <div className="px-2.5 py-1.5 rounded-lg">Platform Analytics</div>
+                    <div className="px-2.5 py-1.5 rounded-lg">Locations & Hubs</div>
+                    <div className="px-2.5 py-1.5 rounded-lg">Market Analytics</div>
                   </div>
                 </div>
               </div>

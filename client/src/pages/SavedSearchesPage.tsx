@@ -60,15 +60,15 @@ export const SavedSearchesPage: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-semibold">
-                Query Management
+                Saved Searches
               </span>
-              <span className="text-xs font-mono text-saas-secondary">• {savedSearches.length} Saved Scans</span>
+              <span className="text-xs font-mono text-saas-secondary">• {savedSearches.length} Searches Saved</span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-saas-primary">
-              Saved Queries & Search History
+              Saved Searches & History
             </h1>
             <p className="text-xs text-saas-secondary mt-0.5">
-              Re-execute complex multi-facet parametric searches and review historical supply-chain audit logs.
+              Re-run your saved company searches and review your recent search activity.
             </p>
           </div>
         </div>
@@ -79,13 +79,13 @@ export const SavedSearchesPage: React.FC = () => {
           <div className="space-y-4">
             <h2 className="text-xs font-bold uppercase tracking-wider text-saas-primary flex items-center gap-2">
               <Bookmark size={14} className="text-saas-accent" />
-              Saved Parameter Queries ({savedSearches.length})
+              Saved Searches ({savedSearches.length})
             </h2>
 
             {loading ? (
               <div className="bg-white rounded-xl border border-saas-border p-8 text-center">
                 <RefreshCw size={20} className="animate-spin text-saas-accent mx-auto mb-2" />
-                <p className="text-xs text-saas-secondary">Loading saved queries...</p>
+                <p className="text-xs text-saas-secondary">Loading saved searches...</p>
               </div>
             ) : savedSearches.length > 0 ? (
               <div className="space-y-3">
@@ -119,12 +119,12 @@ export const SavedSearchesPage: React.FC = () => {
                           className="px-3 py-1.5 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 cursor-pointer"
                         >
                           <Play size={12} fill="currentColor" />
-                          <span>Execute</span>
+                          <span>Run Search</span>
                         </button>
                         <button
                           onClick={() => handleDelete(s.id)}
                           className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                          title="Delete query"
+                          title="Delete search"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -136,7 +136,7 @@ export const SavedSearchesPage: React.FC = () => {
             ) : (
               <div className="bg-white rounded-xl border border-saas-border p-8 text-center">
                 <p className="text-xs text-saas-secondary">
-                  No saved queries yet. Use the "Save Query" button on the Company Discovery page to store frequent searches.
+                  No saved searches yet. Use the "Save Search" button on the Company Discovery page to store frequent searches.
                 </p>
               </div>
             )}
@@ -146,13 +146,13 @@ export const SavedSearchesPage: React.FC = () => {
           <div className="space-y-4">
             <h2 className="text-xs font-bold uppercase tracking-wider text-saas-primary flex items-center gap-2">
               <History size={14} className="text-indigo-600" />
-              Recent Execution Telemetry ({history.length})
+              Recent Search History ({history.length})
             </h2>
 
             {loading ? (
               <div className="bg-white rounded-xl border border-saas-border p-8 text-center">
                 <RefreshCw size={20} className="animate-spin text-saas-accent mx-auto mb-2" />
-                <p className="text-xs text-saas-secondary">Loading search logs...</p>
+                <p className="text-xs text-saas-secondary">Loading search history...</p>
               </div>
             ) : history.length > 0 ? (
               <div className="bg-white rounded-xl border border-saas-border divide-y divide-saas-border shadow-xs overflow-hidden">
@@ -160,10 +160,10 @@ export const SavedSearchesPage: React.FC = () => {
                   <div key={h.id} className="p-3.5 flex items-center justify-between text-xs hover:bg-slate-50">
                     <div>
                       <div className="font-semibold text-saas-primary">
-                        {h.searchQuery || 'Parametric Facet Query'}
+                        {h.searchQuery || 'Company Search'}
                       </div>
                       <div className="text-[10px] text-saas-secondary font-mono">
-                        {new Date(h.createdAt).toLocaleString()} • {h.resultsCount} hits returned
+                        {new Date(h.createdAt).toLocaleString()} • {h.resultsCount} results
                       </div>
                     </div>
 
@@ -180,7 +180,7 @@ export const SavedSearchesPage: React.FC = () => {
               </div>
             ) : (
               <div className="bg-white rounded-xl border border-saas-border p-8 text-center">
-                <p className="text-xs text-saas-secondary">No execution telemetry logged yet.</p>
+                <p className="text-xs text-saas-secondary">No recent searches logged yet.</p>
               </div>
             )}
           </div>

@@ -4,7 +4,6 @@ import {
   Sliders,
   CheckCircle2,
   AlertCircle,
-  HelpCircle,
   Cpu,
   Layers,
   MapPin,
@@ -15,7 +14,11 @@ import {
   Building2,
   Check,
   ChevronDown,
-  Info,
+  ChevronUp,
+  Search,
+  X,
+  ExternalLink,
+  ShieldCheck,
 } from 'lucide-react';
 import api from '../services/api';
 import { MatchingResultItem } from '../types';
@@ -24,18 +27,31 @@ import { VerificationBadge } from '../components/common/Badge';
 import { CompanyDetailModal } from '../components/company/CompanyDetailModal';
 
 export const MatchingPage: React.FC = () => {
-  const [targetCapabilities, setTargetCapabilities] = useState<string[]>(['28nm HKMG', 'Class 10 Cleanroom']);
-  const [newCapInput, setNewCapInput] = useState('');
+  // 1. Required Services
+  const [selectedServices, setSelectedServices] = useState<string[]>([
+    'PCB Assembly',
+    'Electronics Manufacturing',
+  ]);
+  const [customServiceInput, setCustomServiceInput] = useState('');
 
-  const [targetProducts, setTargetProducts] = useState<string[]>(['RISC-V Microcontrollers']);
-  const [newProdInput, setNewProdInput] = useState('');
+  // 2. Products or Components
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([
+    'Microcontrollers',
+  ]);
+  const [customProductInput, setCustomProductInput] = useState('');
 
-  const [preferredCountries, setPreferredCountries] = useState<string[]>(['India', 'Taiwan']);
-  const [preferredIndustries, setPreferredIndustries] = useState<string[]>(['Automotive', 'Industrial IoT']);
-  const [requiredCertifications, setRequiredCertifications] = useState<string[]>(['IATF 16949', 'ISO 9001']);
+  // 3. Preferred Locations
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([
+    'India',
+  ]);
 
-  const [showWeights, setShowWeights] = useState(false);
-  const [customWeights, setCustomWeights] = useState({
+  // 4. Certifications
+  const [selectedCertifications, setSelectedCertifications] = useState<string[]>([]);
+  const [noCertPreference, setNoCertPreference] = useState(true);
+
+  // Advanced Preferences (Collapsible)
+  const [showAdvancedPreferences, setShowAdvancedPreferences] = useState(false);
+  const [weights, setWeights] = useState({
     capabilities: 0.35,
     products: 0.25,
     industry: 0.20,
@@ -43,58 +59,53 @@ export const MatchingPage: React.FC = () => {
     certifications: 0.10,
   });
 
+  // State
   const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
   const [matches, setMatches] = useState<MatchingResultItem[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<any | null>(null);
+  const [savedCompanyIds, setSavedCompanyIds] = useState<string[]>([]);
+  const [savingId, setSavingId] = useState<string | null>(null);
 
-  const runMatchingQuery = async () => {
-    setLoading(true);
-    try {
-      const payload = {
-        targetCapabilities,
-        targetProducts,
-        preferredCountries,
-        preferredIndustries,
-        requiredCertifications,
-        customWeights,
-      };
+  // Common Presets
+  const popularServices = [
+    'PCB Assembly',
+    'PCB Manufacturing',
+    'IC Packaging',
+    'Semiconductor Testing',
+    'Electronics Manufacturing',
+    'PCB Design',
+    'Component Distribution',
+  ];
 
-      const res = await api.post('/matching/query', payload);
-      if (res.data?.success) {
-        setMatches(res.data.data.results);
-      }
-    } catch (err: any) {
-      alert(err.message || 'Matching engine calculation failed.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const popularProducts = [
+    'Microcontrollers',
+    'RISC-V Processors',
+    'Semiconductor Components',
+    'HDI PCB',
+    'BGA Modules',
+    'Electronic Components',
+  ];
 
-  const addCapability = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newCapInput.trim() && !targetCapabilities.includes(newCapInput.trim())) {
-      setTargetCapabilities([...targetCapabilities, newCapInput.trim()]);
-      setNewCapInput('');
-    }
-  };
+  const popularLocations = [
+    { name: 'India', flag: '🇮🇳' },
+    { name: 'Taiwan', flag: '🇹🇼' },
+    { name: 'United States', flag: '🇺🇸' },
+    { name: 'Japan', flag: '🇯🇵' },
+    { name: 'Austria', flag: '🇦🇹' },
+    { name: 'Germany', flag: '🇩🇪' },
+  ];
 
-  const removeCapability = (item: string) => {
-    setTargetCapabilities(targetCapabilities.filter((c) => c !== item));
-  };
+  const popularCertifications = [
+    'IATF 16949 (Automotive)',
+    'ISO 9001 (Quality)',
+    'ISO 14001 (Environmental)',
+    'AS9100D (Aerospace)',
+    'IPC-A-610 (Assembly)',
+    'Cleanroom Class 100',
+  ];
 
-  const addProduct = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newProdInput.trim() && !targetProducts.includes(newProdInput.trim())) {
-      setTargetProducts([...targetProducts, newProdInput.trim()]);
-      setNewProdInput('');
-    }
-  };
-
-  const removeProduct = (item: string) => {
-    setTargetProducts(targetProducts.filter((p) => p !== item));
-  };
-
-  const toggleItem = (list: string[], setList: (l: string[]) => void, item: string) => {
+  const toggleSelection = (list: string[], setList: (l: string[]) => void, item: string) => {
     if (list.includes(item)) {
       setList(list.filter((i) => i !== item));
     } else {
@@ -102,389 +113,583 @@ export const MatchingPage: React.FC = () => {
     }
   };
 
+  const handleAddCustomService = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (customServiceInput.trim() && !selectedServices.includes(customServiceInput.trim())) {
+      setSelectedServices([...selectedServices, customServiceInput.trim()]);
+      setCustomServiceInput('');
+    }
+  };
+
+  const handleAddCustomProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (customProductInput.trim() && !selectedProducts.includes(customProductInput.trim())) {
+      setSelectedProducts([...selectedProducts, customProductInput.trim()]);
+      setCustomProductInput('');
+    }
+  };
+
+  const handleRunMatching = async () => {
+    setLoading(true);
+    setSearched(true);
+    try {
+      const payload = {
+        targetCapabilities: selectedServices,
+        targetServices: selectedServices,
+        targetProducts: selectedProducts,
+        preferredCountries: selectedLocations,
+        requiredCertifications: noCertPreference ? [] : selectedCertifications,
+        customWeights: weights,
+      };
+
+      const res = await api.post('/matching/query', payload);
+      if (res.data?.success) {
+        const results = res.data.data?.matches || res.data.data?.results || [];
+        setMatches(results);
+      }
+    } catch (err: any) {
+      console.error('Matching query error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveCompany = async (companyId: string) => {
+    setSavingId(companyId);
+    try {
+      await api.post('/saved', {
+        companyId,
+        status: 'EVALUATING',
+        notes: 'Shortlisted from Company Matching',
+      });
+      setSavedCompanyIds((prev) => [...prev, companyId]);
+    } catch (err: any) {
+      alert(err.message || 'Could not save company. Please make sure you are signed in.');
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  const handleReset = () => {
+    setSelectedServices([]);
+    setSelectedProducts([]);
+    setSelectedLocations([]);
+    setSelectedCertifications([]);
+    setNoCertPreference(true);
+    setMatches([]);
+    setSearched(false);
+  };
+
+  const handlePreFillSample = () => {
+    setSelectedServices(['PCB Assembly', 'Electronics Manufacturing']);
+    setSelectedProducts(['Microcontrollers', 'HDI PCB']);
+    setSelectedLocations(['India']);
+    setNoCertPreference(true);
+    setTimeout(() => {
+      handleRunMatching();
+    }, 100);
+  };
+
   return (
     <AppLayout>
       <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
-        {/* TOP HEADER */}
+        {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-saas-border pb-5">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-semibold">
-                Algorithmic Sourcing Engine
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-saas-accent bg-teal-50 border border-teal-200 px-2 py-0.5 rounded">
+                Business Partner Discovery
               </span>
-              <span className="text-xs font-mono text-saas-secondary">• Multi-Factor Explainable Scoring</span>
+              <span className="text-xs text-saas-secondary">
+                Find suppliers, manufacturers & partners
+              </span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-saas-primary">
-              Semiconductor Capability Matching Engine
+              Company Matching
             </h1>
             <p className="text-xs text-saas-secondary mt-0.5">
-              Algorithmically ranks wafer foundries, packaging houses, and EMS partners based on technical specifications, process geometries, and geographic criteria.
+              Select what your business needs and we will find the most suitable companies across the semiconductor and electronics ecosystem.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setShowWeights(!showWeights)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-saas-border bg-white hover:bg-slate-50 text-saas-primary text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              type="button"
+              onClick={handleReset}
+              className="px-3 py-1.5 rounded-lg border border-saas-border bg-white hover:bg-slate-50 text-xs font-semibold text-saas-secondary transition-colors cursor-pointer"
             >
-              <Sliders size={14} className="text-saas-accent" />
-              <span>{showWeights ? 'Hide Heuristic Weights' : 'Adjust Heuristic Weights'}</span>
+              Clear All
             </button>
-
             <button
-              onClick={runMatchingQuery}
+              type="button"
+              onClick={handleRunMatching}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-bold shadow-xs flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
             >
               {loading ? (
                 <RefreshCw size={14} className="animate-spin" />
               ) : (
-                <Sparkles size={14} />
+                <Search size={14} />
               )}
-              <span>Calculate Matches</span>
+              <span>Find Matching Companies</span>
             </button>
           </div>
         </div>
 
-        {/* CUSTOM HEURISTIC WEIGHTS DRAWER */}
-        {showWeights && (
-          <div className="bg-white rounded-xl border border-saas-border p-5 shadow-xs animate-in fade-in space-y-4">
-            <div className="flex items-center justify-between">
+        {/* 2-COLUMN LAYOUT: SEARCH REQUIREMENTS & MATCHING RESULTS */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* LEFT COLUMN: WHAT ARE YOU LOOKING FOR? (5 cols) */}
+          <div className="lg:col-span-5 space-y-5">
+            <div className="bg-white rounded-xl border border-saas-border p-5 shadow-xs space-y-6">
               <div>
-                <h3 className="text-xs font-bold text-saas-primary uppercase tracking-wide">
-                  Heuristic Weight Distribution
-                </h3>
-                <p className="text-[11px] text-saas-secondary">
-                  Assign relative priority coefficients to each matching vector (Sum = 1.0)
+                <h2 className="text-base font-bold text-saas-primary">
+                  What are you looking for?
+                </h2>
+                <p className="text-xs text-saas-secondary mt-0.5 leading-relaxed">
+                  Tell us what your business needs. We'll find companies that match your requirements.
                 </p>
               </div>
-              <span className="text-xs font-mono font-bold text-saas-accent bg-teal-50 border border-teal-200 px-2 py-0.5 rounded">
-                Sum: {Math.round((Object.values(customWeights).reduce((a, b) => a + b, 0)) * 100)}%
-              </span>
-            </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-2">
-              {Object.entries(customWeights).map(([key, val]) => (
-                <div key={key} className="space-y-1">
-                  <div className="flex justify-between text-xs font-semibold text-saas-primary capitalize">
-                    <span>{key}</span>
-                    <span className="font-mono text-saas-accent">{Math.round(val * 100)}%</span>
+              {/* 1. REQUIRED SERVICES */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-saas-primary">
+                    1. Required Services
+                  </label>
+                  {selectedServices.length > 0 && (
+                    <span className="text-[11px] font-mono text-teal-800 font-semibold">
+                      {selectedServices.length} selected
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {popularServices.map((service) => {
+                    const isSelected = selectedServices.includes(service);
+                    return (
+                      <button
+                        key={service}
+                        type="button"
+                        onClick={() => toggleSelection(selectedServices, setSelectedServices, service)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
+                          isSelected
+                            ? 'bg-teal-50 text-teal-900 border border-teal-300 font-semibold'
+                            : 'bg-saas-bg hover:bg-slate-100 text-saas-primary border border-saas-border'
+                        }`}
+                      >
+                        {isSelected && <Check size={12} className="text-teal-700" />}
+                        <span>{service}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Add Custom Service Input */}
+                <form onSubmit={handleAddCustomService} className="flex gap-1.5 pt-1">
+                  <input
+                    type="text"
+                    value={customServiceInput}
+                    onChange={(e) => setCustomServiceInput(e.target.value)}
+                    placeholder="Add other service (e.g. SMT 01005)..."
+                    className="flex-1 px-3 py-1.5 text-xs bg-saas-bg border border-saas-border rounded-lg text-saas-primary placeholder:text-slate-400 focus:outline-none focus:border-saas-accent focus:bg-white"
+                  />
+                  <button
+                    type="submit"
+                    className="px-3 py-1.5 bg-saas-primary hover:bg-slate-800 text-white rounded-lg text-xs font-semibold cursor-pointer"
+                  >
+                    Add
+                  </button>
+                </form>
+              </div>
+
+              {/* 2. PRODUCTS OR COMPONENTS */}
+              <div className="space-y-2 pt-2 border-t border-saas-border">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-saas-primary">
+                    2. Products or Components
+                  </label>
+                  {selectedProducts.length > 0 && (
+                    <span className="text-[11px] font-mono text-teal-800 font-semibold">
+                      {selectedProducts.length} selected
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {popularProducts.map((product) => {
+                    const isSelected = selectedProducts.includes(product);
+                    return (
+                      <button
+                        key={product}
+                        type="button"
+                        onClick={() => toggleSelection(selectedProducts, setSelectedProducts, product)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
+                          isSelected
+                            ? 'bg-teal-50 text-teal-900 border border-teal-300 font-semibold'
+                            : 'bg-saas-bg hover:bg-slate-100 text-saas-primary border border-saas-border'
+                        }`}
+                      >
+                        {isSelected && <Check size={12} className="text-teal-700" />}
+                        <span>{product}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Add Custom Product Input */}
+                <form onSubmit={handleAddCustomProduct} className="flex gap-1.5 pt-1">
+                  <input
+                    type="text"
+                    value={customProductInput}
+                    onChange={(e) => setCustomProductInput(e.target.value)}
+                    placeholder="Add other product (e.g. Power MOSFETs)..."
+                    className="flex-1 px-3 py-1.5 text-xs bg-saas-bg border border-saas-border rounded-lg text-saas-primary placeholder:text-slate-400 focus:outline-none focus:border-saas-accent focus:bg-white"
+                  />
+                  <button
+                    type="submit"
+                    className="px-3 py-1.5 bg-saas-primary hover:bg-slate-800 text-white rounded-lg text-xs font-semibold cursor-pointer"
+                  >
+                    Add
+                  </button>
+                </form>
+              </div>
+
+              {/* 3. PREFERRED LOCATIONS */}
+              <div className="space-y-2 pt-2 border-t border-saas-border">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-saas-primary">
+                    3. Preferred Locations
+                  </label>
+                  {selectedLocations.length > 0 ? (
+                    <span className="text-[11px] font-mono text-teal-800 font-semibold">
+                      {selectedLocations.length} selected
+                    </span>
+                  ) : (
+                    <span className="text-[11px] text-slate-400 font-mono">Any location</span>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {popularLocations.map((loc) => {
+                    const isSelected = selectedLocations.includes(loc.name);
+                    return (
+                      <button
+                        key={loc.name}
+                        type="button"
+                        onClick={() => toggleSelection(selectedLocations, setSelectedLocations, loc.name)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
+                          isSelected
+                            ? 'bg-saas-primary text-white font-semibold shadow-xs'
+                            : 'bg-saas-bg hover:bg-slate-100 text-saas-primary border border-saas-border'
+                        }`}
+                      >
+                        <span>{loc.flag}</span>
+                        <span>{loc.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 4. CERTIFICATIONS */}
+              <div className="space-y-2 pt-2 border-t border-saas-border">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-saas-primary">
+                    4. Certifications
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNoCertPreference(!noCertPreference);
+                      if (!noCertPreference) setSelectedCertifications([]);
+                    }}
+                    className={`text-[11px] font-semibold transition-colors cursor-pointer ${
+                      noCertPreference ? 'text-teal-700 underline' : 'text-saas-secondary'
+                    }`}
+                  >
+                    {noCertPreference ? '✓ No preference' : 'Set preference'}
+                  </button>
+                </div>
+
+                {!noCertPreference && (
+                  <div className="flex flex-wrap gap-1.5 pt-1 animate-in fade-in">
+                    {popularCertifications.map((cert) => {
+                      const isSelected = selectedCertifications.includes(cert.split(' ')[0]);
+                      const cleanName = cert.split(' ')[0];
+                      return (
+                        <button
+                          key={cert}
+                          type="button"
+                          onClick={() => toggleSelection(selectedCertifications, setSelectedCertifications, cleanName)}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1 ${
+                            isSelected
+                              ? 'bg-teal-50 text-teal-900 border border-teal-300 font-semibold'
+                              : 'bg-saas-bg hover:bg-slate-100 text-saas-secondary border border-saas-border'
+                          }`}
+                        >
+                          {isSelected && <Check size={11} className="text-teal-700" />}
+                          <span>{cert}</span>
+                        </button>
+                      );
+                    })}
                   </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.05"
-                    value={val}
-                    onChange={(e) =>
-                      setCustomWeights({
-                        ...customWeights,
-                        [key]: parseFloat(e.target.value),
-                      })
-                    }
-                    className="w-full accent-teal-600 cursor-pointer"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 2-COLUMN WORKBENCH: CRITERIA FORM + MATCH RESULTS */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* LEFT COLUMN: CRITERIA INPUT PANEL */}
-          <div className="space-y-4">
-            <div className="bg-white rounded-xl border border-saas-border p-5 shadow-xs space-y-5">
-              <h2 className="text-xs font-bold text-saas-primary uppercase tracking-wide pb-2 border-b border-saas-border">
-                Target Sourcing Requirements
-              </h2>
-
-              {/* 1. Target Capabilities */}
-              <div>
-                <label className="block text-xs font-semibold text-saas-primary mb-1">
-                  1. Target Capabilities (Node / Geometry)
-                </label>
-                <form onSubmit={addCapability} className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    value={newCapInput}
-                    onChange={(e) => setNewCapInput(e.target.value)}
-                    placeholder="e.g. 28nm, SMT 01005, Class 10 Cleanroom"
-                    className="flex-1 px-3 py-1.5 border border-saas-border rounded-lg text-xs focus:outline-none focus:border-saas-accent"
-                  />
-                  <button
-                    type="submit"
-                    className="px-3 py-1.5 bg-saas-primary hover:bg-slate-800 text-white rounded-lg text-xs font-semibold cursor-pointer"
-                  >
-                    Add
-                  </button>
-                </form>
-                <div className="flex flex-wrap gap-1.5">
-                  {targetCapabilities.map((cap) => (
-                    <span
-                      key={cap}
-                      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-teal-50 text-teal-800 text-[11px] font-mono border border-teal-200"
-                    >
-                      <Cpu size={11} />
-                      <span>{cap}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeCapability(cap)}
-                        className="text-teal-600 hover:text-teal-900 ml-1 cursor-pointer"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
+                )}
               </div>
 
-              {/* 2. Target Products */}
-              <div>
-                <label className="block text-xs font-semibold text-saas-primary mb-1">
-                  2. Target Products & Domains
-                </label>
-                <form onSubmit={addProduct} className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    value={newProdInput}
-                    onChange={(e) => setNewProdInput(e.target.value)}
-                    placeholder="e.g. RISC-V SoC, HDI PCB, BGA Module"
-                    className="flex-1 px-3 py-1.5 border border-saas-border rounded-lg text-xs focus:outline-none focus:border-saas-accent"
-                  />
-                  <button
-                    type="submit"
-                    className="px-3 py-1.5 bg-saas-primary hover:bg-slate-800 text-white rounded-lg text-xs font-semibold cursor-pointer"
-                  >
-                    Add
-                  </button>
-                </form>
-                <div className="flex flex-wrap gap-1.5">
-                  {targetProducts.map((prod) => (
-                    <span
-                      key={prod}
-                      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-indigo-50 text-indigo-800 text-[11px] font-mono border border-indigo-200"
-                    >
-                      <Layers size={11} />
-                      <span>{prod}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeProduct(prod)}
-                        className="text-indigo-600 hover:text-indigo-900 ml-1 cursor-pointer"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
+              {/* COLLAPSIBLE ADVANCED PREFERENCES */}
+              <div className="pt-2 border-t border-saas-border">
+                <button
+                  type="button"
+                  onClick={() => setShowAdvancedPreferences(!showAdvancedPreferences)}
+                  className="w-full flex items-center justify-between text-xs font-semibold text-saas-secondary hover:text-saas-primary cursor-pointer py-1"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Sliders size={13} className="text-saas-accent" />
+                    <span>Advanced Preferences</span>
+                  </span>
+                  {showAdvancedPreferences ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </button>
+
+                {showAdvancedPreferences && (
+                  <div className="mt-3 p-3 bg-slate-50 rounded-lg border border-saas-border space-y-3 animate-in fade-in">
+                    <p className="text-[11px] text-saas-secondary">
+                      Fine-tune the importance of each factor in calculating matching scores:
+                    </p>
+
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="text-saas-secondary">Services Match</span>
+                        <span className="font-mono font-bold text-saas-accent">{Math.round(weights.capabilities * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.05"
+                        value={weights.capabilities}
+                        onChange={(e) => setWeights({ ...weights, capabilities: parseFloat(e.target.value) })}
+                        className="w-full accent-teal-600"
+                      />
+
+                      <div className="flex justify-between items-center pt-1">
+                        <span className="text-saas-secondary">Products Match</span>
+                        <span className="font-mono font-bold text-saas-accent">{Math.round(weights.products * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.05"
+                        value={weights.products}
+                        onChange={(e) => setWeights({ ...weights, products: parseFloat(e.target.value) })}
+                        className="w-full accent-teal-600"
+                      />
+
+                      <div className="flex justify-between items-center pt-1">
+                        <span className="text-saas-secondary">Location Match</span>
+                        <span className="font-mono font-bold text-saas-accent">{Math.round(weights.location * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.05"
+                        value={weights.location}
+                        onChange={(e) => setWeights({ ...weights, location: parseFloat(e.target.value) })}
+                        className="w-full accent-teal-600"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* 3. Preferred Geographic Corridors */}
-              <div>
-                <label className="block text-xs font-semibold text-saas-primary mb-1.5">
-                  3. Preferred Geographic Hubs
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {[
-                    { code: 'India', flag: '🇮🇳' },
-                    { code: 'Taiwan', flag: '🇹🇼' },
-                    { code: 'United States', flag: '🇺🇸' },
-                    { code: 'Japan', flag: '🇯🇵' },
-                    { code: 'Austria', flag: '🇦🇹' },
-                  ].map((country) => {
-                    const active = preferredCountries.includes(country.code);
-                    return (
-                      <button
-                        key={country.code}
-                        type="button"
-                        onClick={() => toggleItem(preferredCountries, setPreferredCountries, country.code)}
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium border transition-colors cursor-pointer ${
-                          active
-                            ? 'bg-saas-primary text-white border-saas-primary'
-                            : 'bg-white text-saas-secondary border-saas-border hover:bg-slate-50'
-                        }`}
-                      >
-                        <span>{country.flag}</span>
-                        <span>{country.code}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 4. Mandatory Certifications */}
-              <div>
-                <label className="block text-xs font-semibold text-saas-primary mb-1.5">
-                  4. Audited Standards & Certifications
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {['IATF 16949', 'ISO 9001', 'ISO 14001', 'IPC-A-610 Class 3', 'AS9100D', 'AEC-Q100', 'Cleanroom Class 100'].map((cert) => {
-                    const active = requiredCertifications.includes(cert);
-                    return (
-                      <button
-                        key={cert}
-                        type="button"
-                        onClick={() => toggleItem(requiredCertifications, setRequiredCertifications, cert)}
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono border transition-colors cursor-pointer ${
-                          active
-                            ? 'bg-teal-700 text-white border-teal-700'
-                            : 'bg-white text-saas-secondary border-saas-border hover:bg-slate-50'
-                        }`}
-                      >
-                        <Award size={11} />
-                        <span>{cert}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
+              {/* PRIMARY SEARCH BUTTON */}
               <button
                 type="button"
-                onClick={runMatchingQuery}
+                onClick={handleRunMatching}
                 disabled={loading}
-                className="w-full py-2.5 rounded-lg bg-saas-accent hover:bg-teal-700 text-white font-semibold text-xs shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-full py-3 rounded-lg bg-saas-accent hover:bg-teal-700 text-white font-bold text-sm shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
               >
-                {loading ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                Execute Matching Engine
+                {loading ? (
+                  <>
+                    <RefreshCw size={16} className="animate-spin" />
+                    <span>Finding Matching Companies...</span>
+                  </>
+                ) : (
+                  <>
+                    <Search size={16} />
+                    <span>Find Matching Companies</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
 
-          {/* RIGHT 2 COLUMNS: MATCH RANKING RESULTS */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="bg-white rounded-xl border border-saas-border shadow-xs overflow-hidden">
-              <div className="p-4 border-b border-saas-border flex items-center justify-between">
-                <div>
-                  <h2 className="text-xs font-bold text-saas-primary uppercase tracking-wide">
-                    Ranked Alignment Matrix ({matches.length})
-                  </h2>
-                  <p className="text-[11px] text-saas-secondary">
-                    Sorted by composite weighted fit score with vector breakdown
-                  </p>
-                </div>
-                {matches.length > 0 && (
-                  <span className="text-xs font-mono font-bold text-saas-accent">
-                    Top Match: {matches[0]?.totalScore}%
-                  </span>
-                )}
+          {/* RIGHT COLUMN: MATCHING RESULTS (7 cols) */}
+          <div className="lg:col-span-7 space-y-4">
+            {loading ? (
+              <div className="bg-white rounded-xl border border-saas-border p-12 text-center shadow-xs">
+                <RefreshCw size={28} className="animate-spin text-saas-accent mx-auto mb-3" />
+                <h3 className="text-sm font-bold text-saas-primary">Searching company database...</h3>
+                <p className="text-xs text-saas-secondary mt-1">
+                  Evaluating 28 verified semiconductor and electronics companies against your requirements.
+                </p>
               </div>
-
-              {loading ? (
-                <div className="p-12 text-center">
-                  <RefreshCw size={24} className="animate-spin text-saas-accent mx-auto mb-2" />
-                  <p className="text-xs text-saas-secondary">
-                    Calculating weighted Euclidean distances and token overlaps across 28 entities...
-                  </p>
+            ) : searched && matches.length > 0 ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-saas-border">
+                  <div>
+                    <h2 className="text-sm font-bold text-saas-primary">
+                      Matching Companies ({matches.length})
+                    </h2>
+                    <p className="text-xs text-saas-secondary">
+                      Sorted by how closely they match your requirements
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-saas-accent bg-teal-50 border border-teal-200 px-2 py-0.5 rounded">
+                    Best Match: {matches[0]?.totalScore}%
+                  </span>
                 </div>
-              ) : matches.length > 0 ? (
-                <div className="divide-y divide-saas-border">
-                  {matches.map((item, idx) => (
-                    <div
-                      key={item.company.id}
-                      className="p-5 hover:bg-slate-50/70 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
-                    >
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-slate-900 text-white text-[10px] font-mono font-bold flex items-center justify-center shrink-0">
-                            #{idx + 1}
-                          </span>
-                          <h3
-                            onClick={() => setSelectedCompany(item.company)}
-                            className="text-sm font-bold text-saas-primary hover:text-saas-accent transition-colors cursor-pointer"
+
+                <div className="space-y-3">
+                  {matches.map((item) => {
+                    const company = item.company;
+                    const isSaved = savedCompanyIds.includes(company.id);
+
+                    return (
+                      <div
+                        key={company.id}
+                        className="bg-white rounded-xl border border-saas-border p-5 shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between space-y-4"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <h3
+                                onClick={() => setSelectedCompany(company)}
+                                className="text-base font-bold text-saas-primary hover:text-saas-accent transition-colors cursor-pointer"
+                              >
+                                {company.name}
+                              </h3>
+                              <VerificationBadge status={company.verificationStatus} size="sm" />
+                            </div>
+
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold font-mono">
+                              <span>{item.totalScore}% Match</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3 text-xs text-saas-secondary">
+                            <span className="flex items-center gap-1 font-medium text-saas-primary">
+                              <MapPin size={13} className="text-slate-400" />
+                              {company.hqCity}, {company.hqCountry}
+                            </span>
+                            <span>•</span>
+                            <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[11px]">
+                              {company.category?.name || company.companyType}
+                            </span>
+                          </div>
+
+                          <p className="text-xs text-saas-secondary leading-relaxed line-clamp-2">
+                            {company.description}
+                          </p>
+
+                          {/* PLAIN BUSINESS LANGUAGE MATCH EXPLANATIONS */}
+                          <div className="pt-2 border-t border-slate-100">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                              Why this company matches:
+                            </span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {item.matchReasons && item.matchReasons.length > 0 ? (
+                                item.matchReasons.map((reason, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-800 bg-emerald-50/90 border border-emerald-200/80 px-2 py-0.5 rounded"
+                                  >
+                                    <CheckCircle2 size={12} className="text-emerald-600 shrink-0" />
+                                    <span>{reason}</span>
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-[11px] text-slate-500">
+                                  Matches your general industry and geographic requirements.
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* CARD ACTIONS */}
+                        <div className="pt-3 border-t border-saas-border flex items-center justify-between">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedCompany(company)}
+                            className="px-3 py-1.5 rounded-lg bg-saas-bg hover:bg-slate-200 text-saas-primary text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                           >
-                            {item.company.name}
-                          </h3>
-                          <VerificationBadge status={item.company.verificationStatus} size="sm" />
-                          <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                            {item.company.category?.name || item.company.companyType}
-                          </span>
-                        </div>
+                            <span>View Profile</span>
+                            <ArrowRight size={13} />
+                          </button>
 
-                        <div className="flex items-center gap-3 text-xs text-saas-secondary">
-                          <span className="flex items-center gap-1">
-                            <MapPin size={12} className="text-slate-400" />
-                            {item.company.hqCity}, {item.company.hqCountry}
-                          </span>
-                          <span>•</span>
-                          <span className="truncate max-w-md">{item.company.description}</span>
+                          <button
+                            type="button"
+                            disabled={isSaved || savingId === company.id}
+                            onClick={() => handleSaveCompany(company.id)}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                              isSaved
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-default'
+                                : 'bg-white hover:bg-slate-50 text-saas-primary border border-saas-border'
+                            }`}
+                          >
+                            <Bookmark size={13} className={isSaved ? 'text-emerald-600 fill-emerald-600' : 'text-slate-400'} />
+                            <span>{isSaved ? 'Saved to Pipeline' : 'Save Company'}</span>
+                          </button>
                         </div>
-
-                        {/* EXPLAINABILITY SCORE BREAKDOWN BAR */}
-                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1 text-[11px] font-mono">
-                          <div className="bg-slate-50 p-1.5 rounded border border-saas-border">
-                            <span className="text-slate-400 block text-[9px] uppercase">Cap Match</span>
-                            <span className="font-bold text-teal-700">{Math.round(item.breakdown.capabilitiesScore)}%</span>
-                          </div>
-                          <div className="bg-slate-50 p-1.5 rounded border border-saas-border">
-                            <span className="text-slate-400 block text-[9px] uppercase">Prod Match</span>
-                            <span className="font-bold text-indigo-700">{Math.round(item.breakdown.productsScore)}%</span>
-                          </div>
-                          <div className="bg-slate-50 p-1.5 rounded border border-saas-border">
-                            <span className="text-slate-400 block text-[9px] uppercase">Industry</span>
-                            <span className="font-bold text-blue-700">{Math.round(item.breakdown.industryScore)}%</span>
-                          </div>
-                          <div className="bg-slate-50 p-1.5 rounded border border-saas-border">
-                            <span className="text-slate-400 block text-[9px] uppercase">Corridor</span>
-                            <span className="font-bold text-emerald-700">{Math.round(item.breakdown.locationScore)}%</span>
-                          </div>
-                          <div className="bg-slate-50 p-1.5 rounded border border-saas-border">
-                            <span className="text-slate-400 block text-[9px] uppercase">Audit Std</span>
-                            <span className="font-bold text-amber-700">{Math.round(item.breakdown.certificationsScore)}%</span>
-                          </div>
-                        </div>
-
-                        {/* MATCH REASONS */}
-                        {item.matchReasons && item.matchReasons.length > 0 && (
-                          <div className="flex flex-wrap gap-1 pt-1">
-                            {item.matchReasons.slice(0, 3).map((r: string, ri: number) => (
-                              <span key={ri} className="inline-flex items-center gap-1 text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                                <Check size={10} className="text-emerald-600 shrink-0" />
-                                <span>{r}</span>
-                              </span>
-                            ))}
-                          </div>
-                        )}
                       </div>
-
-                      {/* COMPOSITE SCORE GAUGE & ACTION */}
-                      <div className="flex md:flex-col items-center justify-between md:justify-center gap-3 shrink-0 md:border-l md:border-saas-border md:pl-5">
-                        <div className="text-center">
-                          <div className="text-2xl font-black font-mono text-saas-accent">
-                            {item.totalScore}%
-                          </div>
-                          <span className="text-[10px] uppercase font-mono text-saas-secondary">
-                            Composite Fit
-                          </span>
-                        </div>
-
-                        <button
-                          onClick={() => setSelectedCompany(item.company)}
-                          className="px-3.5 py-1.5 rounded-lg bg-saas-primary hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer flex items-center gap-1"
-                        >
-                          Inspect Profile
-                          <ArrowRight size={12} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
-              ) : (
-                <div className="p-12 text-center max-w-md mx-auto">
-                  <Sparkles size={36} className="text-saas-accent mx-auto mb-2 opacity-50" />
-                  <h3 className="text-sm font-bold text-saas-primary">Ready to Compute Matches</h3>
-                  <p className="text-xs text-saas-secondary mt-1 mb-4">
-                    Select target manufacturing nodes, assembly standards, and geographies in the left workbench, then click "Calculate Matches".
+              </div>
+            ) : searched && matches.length === 0 ? (
+              <div className="bg-white rounded-xl border border-saas-border p-12 text-center shadow-xs space-y-3">
+                <AlertCircle size={32} className="text-slate-400 mx-auto" />
+                <h3 className="text-sm font-bold text-saas-primary">No companies match all criteria</h3>
+                <p className="text-xs text-saas-secondary max-w-md mx-auto leading-relaxed">
+                  Try broadening your search by removing a location constraint or selecting fewer specific certifications.
+                </p>
+                <button
+                  type="button"
+                  onClick={handlePreFillSample}
+                  className="mt-2 px-4 py-2 rounded-lg bg-saas-accent text-white text-xs font-semibold hover:bg-teal-700 transition-colors cursor-pointer"
+                >
+                  Show Recommended Matches
+                </button>
+              </div>
+            ) : (
+              /* BEFORE SEARCHING: HELPFUL EMPTY STATE */
+              <div className="bg-white rounded-xl border border-saas-border p-12 text-center shadow-xs space-y-4">
+                <div className="w-12 h-12 rounded-full bg-teal-50 border border-teal-200 text-saas-accent flex items-center justify-center mx-auto">
+                  <Sparkles size={24} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-saas-primary">
+                    Your matching companies will appear here
+                  </h3>
+                  <p className="text-xs text-saas-secondary mt-1 max-w-sm mx-auto leading-relaxed">
+                    Select your required services, products, and preferred locations on the left, then click <strong>Find Matching Companies</strong>.
                   </p>
+                </div>
+
+                <div className="pt-2">
                   <button
-                    onClick={runMatchingQuery}
-                    className="px-4 py-2 bg-saas-accent hover:bg-teal-700 text-white text-xs font-semibold rounded-lg shadow-xs cursor-pointer"
+                    type="button"
+                    onClick={handlePreFillSample}
+                    className="px-4 py-2 rounded-lg bg-saas-primary hover:bg-slate-800 text-white text-xs font-semibold shadow-xs flex items-center gap-2 mx-auto cursor-pointer transition-colors"
                   >
-                    Run Sample Sourcing Query
+                    <Search size={14} />
+                    <span>Try a Sample Search</span>
                   </button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

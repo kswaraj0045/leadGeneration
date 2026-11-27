@@ -60,8 +60,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       items: [
         { label: 'Overview', path: '/app/overview', icon: LayoutDashboard },
         { label: 'Company Discovery', path: '/app/discovery', icon: Search },
-        { label: 'Matching Engine', path: '/app/matching', icon: Sparkles },
-        { label: 'Sourcing Pipeline', path: '/app/workspace', icon: Bookmark },
+        { label: 'Company Matching', path: '/app/matching', icon: Sparkles },
+        { label: 'Saved Companies', path: '/app/workspace', icon: Bookmark },
         { label: 'Saved Searches', path: '/app/searches', icon: History },
         { label: 'Opportunities', path: '/app/opportunities', icon: Zap },
       ],
@@ -70,8 +70,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       title: 'INTELLIGENCE',
       items: [
         { label: 'Industry Explorer', path: '/app/industries', icon: Layers },
-        { label: 'Geographic Insights', path: '/app/geographic', icon: Globe2 },
-        { label: 'Platform Analytics', path: '/app/analytics', icon: BarChart3 },
+        { label: 'Locations & Hubs', path: '/app/geographic', icon: Globe2 },
+        { label: 'Market Analytics', path: '/app/analytics', icon: BarChart3 },
       ],
     },
   ];
@@ -81,7 +81,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       title: 'ADMINISTRATION',
       items: [
         ...(user?.role === 'ADMIN' ? [{ label: 'Admin Portal', path: '/admin', icon: Shield }] : []),
-        { label: 'Subscription & Usage', path: '/app/subscription', icon: CreditCard },
+        { label: 'Subscription & Plans', path: '/app/subscription', icon: CreditCard },
       ],
     });
   }
@@ -91,14 +91,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     const path = location.pathname;
     if (path.includes('/app/overview')) return ['Workspace', 'Overview'];
     if (path.includes('/app/discovery')) return ['Workspace', 'Company Discovery'];
-    if (path.includes('/app/matching')) return ['Workspace', 'Matching Engine'];
-    if (path.includes('/app/workspace')) return ['Workspace', 'Sourcing Pipeline'];
+    if (path.includes('/app/matching')) return ['Workspace', 'Company Matching'];
+    if (path.includes('/app/workspace')) return ['Workspace', 'Saved Companies'];
     if (path.includes('/app/searches')) return ['Workspace', 'Saved Searches'];
     if (path.includes('/app/opportunities')) return ['Workspace', 'Business Opportunities'];
     if (path.includes('/app/industries')) return ['Intelligence', 'Industry Explorer'];
-    if (path.includes('/app/geographic')) return ['Intelligence', 'Geographic Insights'];
-    if (path.includes('/app/analytics')) return ['Intelligence', 'Platform Analytics'];
-    if (path.includes('/app/subscription')) return ['Administration', 'Subscription & Usage'];
+    if (path.includes('/app/geographic')) return ['Intelligence', 'Locations & Hubs'];
+    if (path.includes('/app/analytics')) return ['Intelligence', 'Market Analytics'];
+    if (path.includes('/app/subscription')) return ['Administration', 'Subscription & Plans'];
     if (path.includes('/admin')) return ['Administration', 'Platform Administration'];
     return ['Platform', 'Workspace'];
   };
@@ -281,7 +281,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 type="text"
                 value={globalSearch}
                 onChange={(e) => setGlobalSearch(e.target.value)}
-                placeholder="Search companies, process nodes, cleanrooms (e.g. 28nm)..."
+                placeholder="Search by company name, service, product, or location..."
                 className="w-full pl-9 pr-3 py-1.5 bg-saas-bg border border-saas-border rounded-lg text-xs text-saas-primary placeholder-saas-muted focus:outline-none focus:ring-1 focus:ring-saas-accent focus:bg-white transition-colors"
               />
             </form>
@@ -292,7 +292,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             {/* Live Database Sync Badge */}
             <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>28 Verified Facilities</span>
+              <span>28 Verified Companies</span>
             </div>
 
             {/* Help / Docs */}

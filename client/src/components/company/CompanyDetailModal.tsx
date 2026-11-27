@@ -112,11 +112,11 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
         {/* Tab Navigation */}
         <div className="px-6 border-b border-slate-200 flex space-x-6 text-xs font-medium bg-white">
           {[
-            { id: 'overview', label: 'Company Overview' },
-            { id: 'capabilities', label: `Technical Specs (${company.capabilities?.length || 0})` },
-            { id: 'products', label: `Products & Services (${(company.products?.length || 0) + (company.services?.length || 0)})` },
-            { id: 'certifications', label: `Quality & Standards (${company.certifications?.length || 0})` },
-            { id: 'pipeline', label: 'Sourcing Workspace' },
+            { id: 'overview', label: 'Overview' },
+            { id: 'capabilities', label: `Services & Capabilities (${company.capabilities?.length || 0})` },
+            { id: 'products', label: `Products (${(company.products?.length || 0) + (company.services?.length || 0)})` },
+            { id: 'certifications', label: `Certifications (${company.certifications?.length || 0})` },
+            { id: 'pipeline', label: 'Saved Status & Notes' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -139,7 +139,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
             <div className="space-y-6">
               <div>
                 <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                  Business Description
+                  About Company
                 </h4>
                 <p className="text-sm text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-200/80">
                   {company.description}
@@ -150,21 +150,21 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
               <div className="p-4 rounded-xl bg-teal-50/60 border border-teal-200 text-xs space-y-2">
                 <div className="flex items-center gap-2 font-bold text-teal-900">
                   <ShieldCheck size={16} className="text-teal-600" />
-                  <span>Verification & Data Provenance</span>
+                  <span>Verification Details</span>
                 </div>
                 <p className="text-teal-800">
-                  <strong>Verification Status:</strong> {company.verificationStatus}
+                  <strong>Status:</strong> {company.verificationStatus}
                   {company.verificationNotes && ` — ${company.verificationNotes}`}
                 </p>
                 <p className="text-teal-700 font-mono text-[11px]">
-                  <strong>Primary Data Source:</strong> {company.dataSource}
+                  <strong>Data Source:</strong> {company.dataSource}
                 </p>
               </div>
 
               {/* Contact & Corporate Info Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div className="p-3.5 rounded-lg border border-slate-200 bg-white space-y-1">
-                  <span className="text-slate-400 font-semibold uppercase text-[10px]">Official Website</span>
+                  <span className="text-slate-400 font-semibold uppercase text-[10px]">Website</span>
                   <div className="font-medium text-slate-800 flex items-center gap-1.5">
                     <Globe size={14} className="text-slate-400" />
                     {company.website ? (
@@ -178,7 +178,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
                 </div>
 
                 <div className="p-3.5 rounded-lg border border-slate-200 bg-white space-y-1">
-                  <span className="text-slate-400 font-semibold uppercase text-[10px]">Public Contact Email</span>
+                  <span className="text-slate-400 font-semibold uppercase text-[10px]">Contact Email</span>
                   <div className="font-medium text-slate-800 flex items-center gap-1.5">
                     <Mail size={14} className="text-slate-400" />
                     {company.contactEmail ? (
@@ -192,7 +192,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
                 </div>
 
                 <div className="p-3.5 rounded-lg border border-slate-200 bg-white space-y-1">
-                  <span className="text-slate-400 font-semibold uppercase text-[10px]">Direct Phone Line</span>
+                  <span className="text-slate-400 font-semibold uppercase text-[10px]">Phone</span>
                   <div className="font-medium text-slate-800 flex items-center gap-1.5">
                     <Phone size={14} className="text-slate-400" />
                     <span>{company.contactPhone || 'Unavailable'}</span>
@@ -200,7 +200,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
                 </div>
 
                 <div className="p-3.5 rounded-lg border border-slate-200 bg-white space-y-1">
-                  <span className="text-slate-400 font-semibold uppercase text-[10px]">Revenue Bracket</span>
+                  <span className="text-slate-400 font-semibold uppercase text-[10px]">Annual Revenue</span>
                   <div className="font-medium text-slate-800 font-mono">
                     {company.revenueRange || 'Private / Undisclosed'}
                   </div>
@@ -211,7 +211,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
               {company.industriesServed && company.industriesServed.length > 0 && (
                 <div>
                   <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                    Market Sectors Served
+                    Industries Served
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
                     {company.industriesServed.map((ind) => (
@@ -229,7 +229,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
           {activeTab === 'capabilities' && (
             <div className="space-y-4">
               <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                Manufacturing & Technical Specifications
+                Services & Technical Capabilities
               </h4>
               {company.capabilities && company.capabilities.length > 0 ? (
                 <div className="grid grid-cols-1 gap-3">
@@ -255,7 +255,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-500 italic">No specific technical capabilities published yet.</p>
+                <p className="text-xs text-slate-500 italic">No specific capabilities listed yet.</p>
               )}
             </div>
           )}
@@ -266,7 +266,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
               {/* Products */}
               <div>
                 <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-                  Manufactured Products & Silicon Components
+                  Products & Components
                 </h4>
                 {company.products && company.products.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -294,7 +294,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
               {/* Services */}
               <div>
                 <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-                  Engineering & Turnkey Manufacturing Services
+                  Manufacturing Services
                 </h4>
                 {company.services && company.services.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -325,7 +325,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
           {activeTab === 'certifications' && (
             <div className="space-y-4">
               <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                Quality Certifications & Industry Standard Compliance
+                Quality Certifications & Standards
               </h4>
               {company.certifications && company.certifications.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -347,7 +347,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-500 italic">No formal certifications listed.</p>
+                <p className="text-xs text-slate-500 italic">No certifications listed.</p>
               )}
             </div>
           )}
@@ -356,13 +356,13 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
           {activeTab === 'pipeline' && (
             <form onSubmit={handleSaveToPipeline} className="space-y-4 max-w-lg">
               <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
-                <span className="font-semibold text-slate-800">Sourcing Pipeline:</span> Save this company to your organization's private supplier pipeline to track evaluations, add private engineering notes, and categorize potential partners.
+                <span className="font-semibold text-slate-800">Saved Status:</span> Save this company to your organization's list to track evaluation progress, add internal notes, and organize potential partners.
               </div>
 
               {saveSuccess && (
                 <div className="p-3 rounded-lg bg-teal-50 border border-teal-200 text-teal-800 text-xs flex items-center gap-2">
                   <CheckCircle2 size={16} />
-                  <span>Company saved to your organization workspace!</span>
+                  <span>Company status and notes updated successfully!</span>
                 </div>
               )}
 
@@ -375,43 +375,43 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  Pipeline Stage
+                  Status
                 </label>
                 <select
                   value={pipelineStatus}
                   onChange={(e) => setPipelineStatus(e.target.value as PipelineStage)}
                   className="block w-full py-2 px-3 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-1 focus:ring-teal-500"
                 >
-                  <option value="EVALUATING">Evaluating</option>
+                  <option value="IDENTIFIED">Identified / Shortlisted</option>
                   <option value="CONTACTED">Contacted</option>
-                  <option value="PARTNER">Partner</option>
-                  <option value="SUPPLIER">Approved Supplier</option>
-                  <option value="ARCHIVED">Archived</option>
+                  <option value="EVALUATING">Evaluating</option>
+                  <option value="APPROVED">Approved Partner</option>
+                  <option value="DISQUALIFIED">Archived</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  Custom Tags (comma-separated)
+                  Tags (comma-separated)
                 </label>
                 <input
                   type="text"
                   value={pipelineTags}
                   onChange={(e) => setPipelineTags(e.target.value)}
-                  placeholder="e.g. 28nm, MPW Shuttle, QFN, High Priority"
+                  placeholder="e.g. PCB Assembly, High Priority, Q3 Evaluation"
                   className="block w-full py-2 px-3 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-1 focus:ring-teal-500"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  Private Organization Notes
+                  Internal Notes
                 </label>
                 <textarea
                   rows={4}
                   value={pipelineNotes}
                   onChange={(e) => setPipelineNotes(e.target.value)}
-                  placeholder="Record discussions, capability evaluation feedback, NDA status, or pricing estimates..."
+                  placeholder="Record discussions, capability evaluation feedback, quotes, or next steps..."
                   className="block w-full py-2 px-3 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-1 focus:ring-teal-500"
                 />
               </div>
@@ -422,7 +422,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ company,
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-medium text-sm transition-all shadow-sm shadow-teal-500/20 disabled:opacity-50"
               >
                 <Bookmark size={15} />
-                <span>{savingPipeline ? 'Saving...' : 'Save to Pipeline'}</span>
+                <span>{savingPipeline ? 'Saving...' : 'Save Status & Notes'}</span>
               </button>
             </form>
           )}

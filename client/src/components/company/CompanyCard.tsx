@@ -58,7 +58,7 @@ export const CompanyCard: React.FC<CompanyCardProps> = ({ company, onViewDetails
         {company.capabilities && company.capabilities.length > 0 && (
           <div className="mb-3 space-y-1">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-              Technical Capabilities:
+              Services & Capabilities:
             </p>
             <div className="flex flex-wrap gap-1">
               {company.capabilities.slice(0, 3).map((cap) => (

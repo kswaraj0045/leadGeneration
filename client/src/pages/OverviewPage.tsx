@@ -143,16 +143,16 @@ export const OverviewPage: React.FC = () => {
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Live Telemetry Active
+                Live System Active
               </span>
               <span className="text-xs text-saas-secondary font-mono">DB v2026.11</span>
             </div>
             <h1 className="text-2xl font-bold text-saas-primary tracking-tight">
-              Executive Supply-Chain Workspace
+              Company Discovery Dashboard
             </h1>
             <p className="text-sm text-saas-secondary mt-1">
-              Welcome back, <strong className="text-saas-primary font-semibold">{user?.fullName || 'Intelligence Analyst'}</strong>. 
-              Review real-time semiconductor ecosystem telemetry, verified vendor nodes, and sourcing pipeline.
+              Welcome back, <strong className="text-saas-primary font-semibold">{user?.fullName || 'Business User'}</strong>. 
+              Discover verified semiconductor manufacturers, design houses, assembly providers, and track potential partners.
             </p>
           </div>
 
@@ -162,7 +162,7 @@ export const OverviewPage: React.FC = () => {
               className="px-3.5 py-2 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-semibold shadow-xs flex items-center gap-2 transition-colors cursor-pointer"
             >
               <Sparkles size={14} />
-              Run Sourcing Matcher
+              Company Matching
             </button>
             <button
               onClick={() => navigate('/app/discovery')}
@@ -178,48 +178,48 @@ export const OverviewPage: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-xl border border-saas-border shadow-xs">
             <div className="flex items-center justify-between text-saas-secondary mb-2">
-              <span className="text-xs font-medium uppercase tracking-wider">Indexed Profiles</span>
+              <span className="text-xs font-medium uppercase tracking-wider">Total Companies</span>
               <Cpu size={16} className="text-saas-accent" />
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-bold text-saas-primary font-mono">{kpis.totalCompanies}</span>
-              <span className="text-xs text-emerald-600 font-medium">+100% verified</span>
+              <span className="text-xs text-emerald-600 font-medium">Verified</span>
             </div>
-            <p className="text-[11px] text-saas-secondary mt-1">Authentic industry entities</p>
+            <p className="text-[11px] text-saas-secondary mt-1">Authentic industry companies</p>
           </div>
 
           <div className="bg-white p-5 rounded-xl border border-saas-border shadow-xs">
             <div className="flex items-center justify-between text-saas-secondary mb-2">
-              <span className="text-xs font-medium uppercase tracking-wider">Supply Verticals</span>
+              <span className="text-xs font-medium uppercase tracking-wider">Industry Categories</span>
               <Layers size={16} className="text-indigo-600" />
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-bold text-saas-primary font-mono">6</span>
               <span className="text-xs text-indigo-600 font-medium">Foundry to EMS</span>
             </div>
-            <p className="text-[11px] text-saas-secondary mt-1">Full end-to-end stack</p>
+            <p className="text-[11px] text-saas-secondary mt-1">Full end-to-end supply chain</p>
           </div>
 
           <div className="bg-white p-5 rounded-xl border border-saas-border shadow-xs">
             <div className="flex items-center justify-between text-saas-secondary mb-2">
-              <span className="text-xs font-medium uppercase tracking-wider">Matching Heuristics</span>
+              <span className="text-xs font-medium uppercase tracking-wider">Matching Reliability</span>
               <Sparkles size={16} className="text-amber-600" />
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-bold text-saas-primary font-mono">100%</span>
-              <span className="text-xs text-amber-600 font-medium">Transparent</span>
+              <span className="text-xs text-amber-600 font-medium">Explainable</span>
             </div>
-            <p className="text-[11px] text-saas-secondary mt-1">Multi-factor explainability</p>
+            <p className="text-[11px] text-saas-secondary mt-1">Multi-factor match criteria</p>
           </div>
 
           <div className="bg-white p-5 rounded-xl border border-saas-border shadow-xs">
             <div className="flex items-center justify-between text-saas-secondary mb-2">
-              <span className="text-xs font-medium uppercase tracking-wider">Global Corridors</span>
+              <span className="text-xs font-medium uppercase tracking-wider">Active Locations</span>
               <Globe2 size={16} className="text-emerald-600" />
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-bold text-saas-primary font-mono">5</span>
-              <span className="text-xs text-emerald-600 font-medium">Cross-border</span>
+              <span className="text-xs text-emerald-600 font-medium">Global Hubs</span>
             </div>
             <p className="text-[11px] text-saas-secondary mt-1">India, Taiwan, USA, JP, EU</p>
           </div>
@@ -234,17 +234,17 @@ export const OverviewPage: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-sm font-bold text-saas-primary uppercase tracking-wide">
-                    Ecosystem Taxonomy Breakdown
+                    Industry Categories
                   </h2>
                   <p className="text-xs text-saas-secondary">
-                    Distribution of indexed facilities across technical domains
+                    Explore companies by category and manufacturing tier
                   </p>
                 </div>
                 <Link
                   to="/app/industries"
                   className="text-xs font-semibold text-saas-accent hover:underline flex items-center gap-1"
                 >
-                  Explore Taxonomy <ArrowRight size={13} />
+                  View All Categories <ArrowRight size={13} />
                 </Link>
               </div>
 
@@ -266,7 +266,7 @@ export const OverviewPage: React.FC = () => {
                             {ind.name}
                           </div>
                           <div className="text-[11px] text-saas-secondary font-mono">
-                            {ind.count} verified entities ({ind.share})
+                            {ind.count} companies ({ind.share})
                           </div>
                         </div>
                       </div>
@@ -282,17 +282,17 @@ export const OverviewPage: React.FC = () => {
               <div className="p-4 border-b border-saas-border flex items-center justify-between">
                 <div>
                   <h2 className="text-sm font-bold text-saas-primary uppercase tracking-wide">
-                    Recently Indexed Verified Entities
+                    Recently Added Companies
                   </h2>
                   <p className="text-xs text-saas-secondary">
-                    Audited semiconductor manufacturers, designers, and assemblers
+                    Verified semiconductor manufacturers, designers, and assemblers
                   </p>
                 </div>
                 <Link
                   to="/app/discovery"
                   className="text-xs font-semibold text-saas-accent hover:underline flex items-center gap-1"
                 >
-                  View All {kpis.totalCompanies} Entities <ArrowRight size={13} />
+                  View All {kpis.totalCompanies} Companies <ArrowRight size={13} />
                 </Link>
               </div>
 
@@ -300,9 +300,9 @@ export const OverviewPage: React.FC = () => {
                 <table className="w-full text-left text-xs">
                   <thead className="bg-saas-bg text-saas-secondary font-semibold border-b border-saas-border">
                     <tr>
-                      <th className="py-2.5 px-4">Company Name</th>
-                      <th className="py-2.5 px-4">Vertical</th>
-                      <th className="py-2.5 px-4">Headquarters</th>
+                      <th className="py-2.5 px-4">Company</th>
+                      <th className="py-2.5 px-4">Category</th>
+                      <th className="py-2.5 px-4">Location</th>
                       <th className="py-2.5 px-4">Core Capability</th>
                       <th className="py-2.5 px-4">Status</th>
                       <th className="py-2.5 px-4 text-right">Action</th>
@@ -345,7 +345,7 @@ export const OverviewPage: React.FC = () => {
                             onClick={() => setSelectedCompany(c)}
                             className="text-xs text-saas-accent hover:underline font-medium cursor-pointer"
                           >
-                            Inspect
+                            View Profile
                           </button>
                         </td>
                       </tr>
@@ -362,7 +362,7 @@ export const OverviewPage: React.FC = () => {
             <div className="bg-white rounded-xl border border-saas-border p-5 shadow-xs">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-bold text-saas-primary uppercase tracking-wide">
-                  Geographic Corridors
+                  Locations & Hubs
                 </h2>
                 <Link to="/app/geographic" className="text-xs text-saas-accent font-semibold hover:underline">
                   Full Map
@@ -377,7 +377,7 @@ export const OverviewPage: React.FC = () => {
                   <div key={c.name} className="p-3 rounded-lg border border-saas-border bg-slate-50/50">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-saas-primary">{c.name}</span>
-                      <span className="text-xs font-mono font-bold text-saas-accent">{c.count} nodes</span>
+                      <span className="text-xs font-mono font-bold text-saas-accent">{c.count} companies</span>
                     </div>
                     <div className="text-[11px] text-saas-secondary mt-1 flex items-center justify-between">
                       <span>{c.status}</span>
@@ -397,14 +397,14 @@ export const OverviewPage: React.FC = () => {
             <div className="bg-white rounded-xl border border-saas-border p-5 shadow-xs">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-bold text-saas-primary uppercase tracking-wide">
-                  Industry Bulletins
+                  Industry News & Updates
                 </h2>
                 <span className="text-[10px] font-mono text-saas-secondary bg-slate-100 px-1.5 py-0.5 rounded">
                   Curated
                 </span>
               </div>
               <p className="text-xs text-saas-secondary mb-4">
-                Technical lead time, capacity and regulatory insights
+                Lead time, capacity and regulatory insights
               </p>
 
               <div className="space-y-3">
@@ -431,11 +431,11 @@ export const OverviewPage: React.FC = () => {
             <div className="bg-slate-900 text-white rounded-xl p-5 shadow-xs">
               <div className="flex items-center gap-2 mb-2 text-teal-400">
                 <FileSpreadsheet size={18} />
-                <span className="text-xs font-mono font-bold uppercase tracking-wider">Data Portability</span>
+                <span className="text-xs font-mono font-bold uppercase tracking-wider">Export Data</span>
               </div>
-              <h3 className="text-sm font-bold mb-1">Export Complete Sourcing Dossier</h3>
+              <h3 className="text-sm font-bold mb-1">Export Company Directory</h3>
               <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                Export all 28+ verified semiconductor entities into structured CSV or multi-tab Excel format for procurement workflows.
+                Export all 28+ verified semiconductor companies into structured CSV or multi-tab Excel format.
               </p>
               <div className="flex gap-2">
                 <button

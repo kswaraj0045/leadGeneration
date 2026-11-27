@@ -169,15 +169,15 @@ export const DiscoveryPage: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-semibold">
-                Intelligence Console
+                Company Directory
               </span>
-              <span className="text-xs font-mono text-saas-secondary">• {totalCount} Facilities Indexed</span>
+              <span className="text-xs font-mono text-saas-secondary">• {totalCount} Verified Companies</span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-saas-primary">
-              Company Discovery & Parametric Registry
+              Company Discovery
             </h1>
             <p className="text-xs text-saas-secondary mt-0.5">
-              Query multi-tier verified wafer foundries, packaging facilities, interconnect manufacturers, and EMS turnkey providers.
+              Search and discover verified semiconductor manufacturers, design houses, packaging units, and electronics assembly providers.
             </p>
           </div>
 
@@ -191,7 +191,7 @@ export const DiscoveryPage: React.FC = () => {
                 className={`p-1.5 rounded text-xs font-medium cursor-pointer ${
                   viewMode === 'table' ? 'bg-saas-primary text-white shadow-xs' : 'text-saas-secondary hover:text-saas-primary'
                 }`}
-                title="Dense Data Matrix View"
+                title="Table View"
               >
                 <List size={15} />
               </button>
@@ -201,7 +201,7 @@ export const DiscoveryPage: React.FC = () => {
                 className={`p-1.5 rounded text-xs font-medium cursor-pointer ${
                   viewMode === 'grid' ? 'bg-saas-primary text-white shadow-xs' : 'text-saas-secondary hover:text-saas-primary'
                 }`}
-                title="Grid Card View"
+                title="Card View"
               >
                 <LayoutGrid size={15} />
               </button>
@@ -212,7 +212,7 @@ export const DiscoveryPage: React.FC = () => {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-saas-border bg-white hover:bg-slate-50 text-saas-primary text-xs font-semibold shadow-xs transition-colors cursor-pointer"
             >
               <Bookmark size={13} className="text-saas-secondary" />
-              <span>Save Query</span>
+              <span>Save Search</span>
             </button>
 
             <button
@@ -235,7 +235,7 @@ export const DiscoveryPage: React.FC = () => {
           </div>
         </div>
 
-        {/* PARAMETRIC SEARCH & FILTER WORKBENCH */}
+        {/* SEARCH & FILTER WORKBENCH */}
         <div className="bg-white rounded-xl border border-saas-border p-4 shadow-xs space-y-3">
           <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-3">
             <div className="relative flex-1">
@@ -244,7 +244,7 @@ export const DiscoveryPage: React.FC = () => {
                 type="text"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Search capability (e.g. 28nm, SMT 01005, Class 100, Cleanroom), company, or standard..."
+                placeholder="Search by company name, service, product, or location..."
                 className="w-full pl-9 pr-4 py-2 bg-saas-bg border border-saas-border rounded-lg text-xs text-saas-primary placeholder:text-slate-400 focus:outline-none focus:border-saas-accent focus:bg-white transition-all"
               />
             </div>
@@ -253,7 +253,7 @@ export const DiscoveryPage: React.FC = () => {
               className="px-4 py-2 bg-saas-accent hover:bg-teal-700 text-white rounded-lg text-xs font-semibold shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
             >
               <Filter size={14} />
-              Apply Parameters
+              Search
             </button>
           </form>
 
@@ -268,7 +268,7 @@ export const DiscoveryPage: React.FC = () => {
               }}
               className="px-2.5 py-1.5 bg-white border border-saas-border rounded-lg text-xs text-saas-primary focus:outline-none focus:border-saas-accent"
             >
-              <option value="all">All Industry Verticals</option>
+              <option value="all">All Categories</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.slug}>
                   {c.name}
@@ -285,11 +285,11 @@ export const DiscoveryPage: React.FC = () => {
               }}
               className="px-2.5 py-1.5 bg-white border border-saas-border rounded-lg text-xs text-saas-primary focus:outline-none focus:border-saas-accent"
             >
-              <option value="all">All Organization Types</option>
+              <option value="all">All Company Types</option>
               <option value="MANUFACTURER">Manufacturer</option>
               <option value="SUPPLIER">Supplier / Distributor</option>
-              <option value="SERVICE_PROVIDER">Service Provider / Design</option>
-              <option value="BUYER">Enterprise Buyer / OEM</option>
+              <option value="SERVICE_PROVIDER">Service Provider / Design House</option>
+              <option value="BUYER">Buyer / OEM</option>
             </select>
 
             {/* Country */}
@@ -301,12 +301,12 @@ export const DiscoveryPage: React.FC = () => {
               }}
               className="px-2.5 py-1.5 bg-white border border-saas-border rounded-lg text-xs text-saas-primary focus:outline-none focus:border-saas-accent"
             >
-              <option value="all">All Geographic Hubs</option>
-              <option value="IN">India (IN)</option>
-              <option value="TW">Taiwan (TW)</option>
-              <option value="US">United States (US)</option>
-              <option value="JP">Japan (JP)</option>
-              <option value="AT">Austria / EU (AT)</option>
+              <option value="all">All Locations</option>
+              <option value="IN">India</option>
+              <option value="TW">Taiwan</option>
+              <option value="US">United States</option>
+              <option value="JP">Japan</option>
+              <option value="AT">Austria / Europe</option>
             </select>
 
             {/* Verification Status */}
@@ -318,10 +318,10 @@ export const DiscoveryPage: React.FC = () => {
               }}
               className="px-2.5 py-1.5 bg-white border border-saas-border rounded-lg text-xs text-saas-primary focus:outline-none focus:border-saas-accent"
             >
-              <option value="all">All Audit Statuses</option>
-              <option value="VERIFIED">Verified Only (Audit Backed)</option>
-              <option value="CLAIMED">Claimed Entities</option>
-              <option value="UNVERIFIED">Unverified Records</option>
+              <option value="all">All Statuses</option>
+              <option value="VERIFIED">Verified Only</option>
+              <option value="CLAIMED">Claimed Profiles</option>
+              <option value="UNVERIFIED">Unverified</option>
             </select>
 
             {hasActiveFilters && (
@@ -336,7 +336,7 @@ export const DiscoveryPage: React.FC = () => {
             )}
 
             <span className="ml-auto text-xs font-mono text-saas-secondary">
-              Showing <strong>{companies.length}</strong> of <strong>{totalCount}</strong> matching entities
+              Showing <strong>{companies.length}</strong> of <strong>{totalCount}</strong> companies
             </span>
           </div>
         </div>
@@ -355,12 +355,12 @@ export const DiscoveryPage: React.FC = () => {
                 <table className="w-full text-left text-xs">
                   <thead className="bg-saas-bg text-saas-secondary font-semibold border-b border-saas-border">
                     <tr>
-                      <th className="px-4 py-3">Facility / Entity</th>
-                      <th className="px-4 py-3">Vertical & Category</th>
-                      <th className="px-4 py-3">Headquarters</th>
-                      <th className="px-4 py-3">Technical Capabilities</th>
+                      <th className="px-4 py-3">Company</th>
+                      <th className="px-4 py-3">Category</th>
+                      <th className="px-4 py-3">Location</th>
+                      <th className="px-4 py-3">Services & Capabilities</th>
                       <th className="px-4 py-3">Certifications</th>
-                      <th className="px-4 py-3">Audit Status</th>
+                      <th className="px-4 py-3">Status</th>
                       <th className="px-4 py-3 text-right">Action</th>
                     </tr>
                   </thead>
@@ -432,7 +432,7 @@ export const DiscoveryPage: React.FC = () => {
                             }}
                             className="px-2.5 py-1 rounded border border-saas-border text-saas-primary hover:bg-slate-100 text-[11px] font-semibold cursor-pointer"
                           >
-                            Inspect
+                            View Profile
                           </button>
                         </td>
                       </tr>
@@ -457,15 +457,15 @@ export const DiscoveryPage: React.FC = () => {
         ) : (
           <div className="bg-white rounded-xl border border-saas-border p-12 text-center max-w-lg mx-auto">
             <Building2 size={36} className="text-slate-400 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-saas-primary">No Facilities Found Matching Query</h3>
+            <h3 className="text-base font-bold text-saas-primary">No Companies Found</h3>
             <p className="text-xs text-saas-secondary mt-1 mb-4">
-              Try adjusting your query parameters, broadening node filters, or clearing specific constraints.
+              Try adjusting your search terms or clearing some filters to see more results.
             </p>
             <button
               onClick={clearFilters}
               className="px-4 py-2 rounded-lg bg-saas-accent text-white text-xs font-semibold hover:bg-teal-700 transition-colors cursor-pointer"
             >
-              Reset Query Parameters
+              Reset Filters
             </button>
           </div>
         )}
@@ -505,24 +505,24 @@ export const DiscoveryPage: React.FC = () => {
       {saveSearchOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-xl border border-saas-border max-w-md w-full p-6 shadow-xl animate-in fade-in">
-            <h3 className="text-base font-bold text-saas-primary mb-1">Save Registry Query</h3>
+            <h3 className="text-base font-bold text-saas-primary mb-1">Save Search</h3>
             <p className="text-xs text-saas-secondary mb-4">
-              Store this query to re-execute regular supply-chain scans and monitor ecosystem additions.
+              Save this search query to quickly run it again later from your workspace.
             </p>
 
             {saveSearchSuccess && (
-              <p className="text-xs text-teal-600 font-semibold mb-3">Query saved to your dashboard!</p>
+              <p className="text-xs text-teal-600 font-semibold mb-3">Search saved successfully!</p>
             )}
 
             <form onSubmit={handleSaveSearch} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-saas-primary mb-1">Query Label</label>
+                <label className="block text-xs font-semibold text-saas-primary mb-1">Search Name</label>
                 <input
                   type="text"
                   required
                   value={searchName}
                   onChange={(e) => setSearchName(e.target.value)}
-                  placeholder="e.g. 28nm Wafer Foundries & OSAT Packaging"
+                  placeholder="e.g. PCB Assembly Providers in India"
                   className="w-full px-3 py-2 border border-saas-border rounded-lg text-xs font-mono text-saas-primary focus:outline-none focus:border-saas-accent"
                 />
               </div>
@@ -539,7 +539,7 @@ export const DiscoveryPage: React.FC = () => {
                   type="submit"
                   className="px-4 py-1.5 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-semibold cursor-pointer"
                 >
-                  Save Query
+                  Save Search
                 </button>
               </div>
             </form>

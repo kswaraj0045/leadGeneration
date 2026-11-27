@@ -155,15 +155,15 @@ export const IndustryExplorerPage: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[11px] font-mono uppercase tracking-wider text-saas-accent bg-teal-50 border border-teal-200 px-2 py-0.5 rounded font-semibold">
-                Intelligence Taxonomy
+                Industry Categories
               </span>
-              <span className="text-xs text-saas-secondary">6 Standard Industry Domains</span>
+              <span className="text-xs text-saas-secondary">6 Supply Chain Categories</span>
             </div>
             <h1 className="text-2xl font-bold text-saas-primary tracking-tight">
-              Semiconductor & Electronics Industry Explorer
+              Industry & Category Explorer
             </h1>
             <p className="text-sm text-saas-secondary mt-1">
-              Explore technical taxonomy specifications, manufacturing criteria, and indexed vendors across the supply chain.
+              Explore industry categories, technical capabilities, and verified companies across the supply chain.
             </p>
           </div>
 
@@ -172,7 +172,7 @@ export const IndustryExplorerPage: React.FC = () => {
             className="px-4 py-2 rounded-lg bg-saas-accent hover:bg-teal-700 text-white text-xs font-semibold shadow-xs flex items-center gap-2 transition-colors shrink-0 cursor-pointer"
           >
             <Filter size={14} />
-            Filter {activeDomain.name} ({activeDomain.companyCount})
+            View {activeDomain.name} ({activeDomain.companyCount})
           </Link>
         </div>
 
@@ -200,7 +200,7 @@ export const IndustryExplorerPage: React.FC = () => {
                   </h3>
                 </div>
                 <div className="text-[11px] font-mono text-saas-secondary mt-2 flex items-center justify-between">
-                  <span>{dom.companyCount} Entities</span>
+                  <span>{dom.companyCount} Companies</span>
                   {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-saas-accent" />}
                 </div>
               </button>
